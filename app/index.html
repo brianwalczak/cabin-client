@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brian's Cabin (Client)</title>
+</head>
+<body>
+    <form>
+        <div>
+            <label for="header">Header</label>
+            <input type="text" id="header" required>
+        </div>
+        <br>
+        <div>
+            <label for="label">Label</label>
+            <input type="text" id="label" required>
+        </div>
+        <br>
+        <div>
+            <label for="color">Color</label>
+            <select id="color" required>
+                <option value="" disabled selected hidden>Select a color...</option>
+                <option value="red">Red</option>
+                <option value="orange">Orange</option>
+                <option value="amber">Amber</option>
+                <option value="yellow">Yellow</option>
+                <option value="lime">Lime</option>
+                <option value="green">Green</option>
+                <option value="emerald">Emerald</option>
+                <option value="teal">Teal</option>
+                <option value="cyan">Cyan</option>
+                <option value="sky">Sky</option>
+                <option value="blue">Blue</option>
+                <option value="indigo">Indigo</option>
+                <option value="violet">Violet</option>
+                <option value="purple">Purple</option>
+                <option value="fuchsia">Fuchsia</option>
+                <option value="pink">Pink</option>
+                <option value="rose">Rose</option>
+                <option value="slate">Slate</option>
+                <option value="gray">Gray</option>
+                <option value="zinc">Zinc</option>
+                <option value="neutral">Neutral</option>
+                <option value="stone">Stone</option>
+                <option value="mauve">Mauve</option>
+                <option value="olive">Olive</option>
+                <option value="mist">Mist</option>
+                <option value="taupe">Taupe</option>
+            </select>
+        </div>
+        <br>
+        <div>
+            <label>
+                <input type="checkbox" id="pulse">
+                Pulse
+            </label>
+        </div>
+        <br>
+        <div>
+            <label>
+                <input type="checkbox" id="expiration">
+                Make it time-sensitive!
+            </label>
+        </div>
+        <br>
+        <button type="submit">Update</button>
+    </form>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const details = {
+                header: document.getElementById('header').value.trim(),
+                label: document.getElementById('label').value.trim(),
+                color: document.getElementById('color').value,
+                pulse: document.getElementById('pulse').checked
+            };
+
+            if (document.getElementById('expiration').checked) {
+                details.updatedAt = new Date().toISOString();
+            }
+
+            window.api.updateStatus(details);
+        });
+    </script>
+</body>
+</html>

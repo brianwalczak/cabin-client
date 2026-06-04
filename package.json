@@ -1,0 +1,72 @@
+{
+  "name": "cabin-client",
+  "productName": "Brian's Cabin (Client)",
+  "version": "1.0.0",
+  "description": "A desktop client for Brian's Cabin, which is used to report my live status.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "npx electron .",
+    "pack": "npx electron-builder --dir",
+    "dist": "npx electron-builder",
+    "build:css": "npx tailwindcss -o ./public/output.css --content ./public/**/*.html --config ./tailwind.config.js --minify && npx tailwindcss -o ./app/output.css --content ./app/**/*.html --config ./tailwind.config.js --minify"
+  },
+  "author": {
+    "name": "Brian Walczak",
+    "email": "me@brian.re"
+  },
+  "license": "Apache-2.0",
+  "build": {
+    "appId": "com.brianwalczak.cabin-client",
+    "icon": "public/logo.png",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/logo.png"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "publish": null,
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "perMachine": false,
+      "runAfterFinish": true
+    }
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.14",
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12",
+    "tailwindcss": "^4.1.14"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  }
+}
