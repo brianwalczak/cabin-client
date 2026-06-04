@@ -9,7 +9,7 @@
     "start": "npx electron .",
     "pack": "npx electron-builder --dir",
     "dist": "npx electron-builder",
-    "build:css": "npx @tailwindcss/cli -i ./app/input.css -o ./app/output.css"
+    "build:css": "npx @tailwindcss/cli -i ./app/input.css -o ./static/css/output.css"
   },
   "author": {
     "name": "Brian Walczak",
@@ -18,7 +18,7 @@
   "license": "Apache-2.0",
   "build": {
     "appId": "com.brianwalczak.cabin-client",
-    "icon": "public/logo.png",
+    "icon": "static/img/logo.png",
     "win": {
       "target": [
         {
@@ -29,7 +29,7 @@
           ]
         }
       ],
-      "icon": "public/logo.png"
+      "icon": "static/img/logo.png"
     },
     "mac": {
       "target": [

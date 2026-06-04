@@ -14,10 +14,10 @@ let redis;
 
 function createWindow() {
     window = new BrowserWindow({
-        width: 400,
-        height: 590,
+        width: 500,
+        height: 700,
         resizable: false,
-        icon: path.join(__dirname, 'public', 'logo.png'),
+        icon: path.join(__dirname, 'static', 'img', 'logo.png'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: true,
