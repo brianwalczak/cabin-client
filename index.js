@@ -89,7 +89,7 @@ async function init(isOnboarding = false) {
 
         if (!isConfigValid(settings)) {
             if (!isOnboarding) {
-                window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+                window.loadFile(path.join(__dirname, 'app', 'onboarding', 'index.html'));
             } else {
                 dialog.showErrorBox('Invalid Settings!', 'The settings you provided are invalid. Please check your configuration and try again.');
             }
@@ -102,7 +102,7 @@ async function init(isOnboarding = false) {
 
         if (!isValid) {
             dialog.showErrorBox('Connection Failed!', 'Failed to connect to Redis with the provided settings. Please check your configuration and try again.');
-            if (!isOnboarding) window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            if (!isOnboarding) window.loadFile(path.join(__dirname, 'app', 'onboarding', 'index.html'));
             return;
         }
 

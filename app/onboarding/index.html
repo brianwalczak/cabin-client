@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brian's Cabin (Client) - Setup</title>
-  <link rel="stylesheet" href="../static/css/output.css" />
+  <link rel="stylesheet" href="../../static/css/output.css" />
 </head>
 <body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
   <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/20">
@@ -66,49 +66,6 @@
     </div>
   </form>
 
-  <script>
-    let step = 1;
-
-    function setStep(num) {
-      const steps = document.getElementsByClassName('step');
-      const dots = document.getElementsByClassName('dot');
-      if (num > steps.length) return finish();
-
-      // reset all steps and dots
-      for (let i = 0; i < steps.length; i++) {
-        steps[i].classList.add('hidden');
-        steps[i].classList.remove('flex');
-        dots[i].classList.remove('bg-white/60');
-        dots[i].classList.add('bg-white/20');
-      }
-
-      // show new step and dot
-      step = num;
-      steps[step - 1].classList.remove('hidden');
-      steps[step - 1].classList.add('flex');
-      dots[step - 1].classList.remove('bg-white/20');
-      dots[step - 1].classList.add('bg-white/60');
-    }
-
-    function nextStep() { setStep(step + 1); }
-    function prevStep() { setStep(step - 1); }
-
-    async function finish() {
-      const result = await window.api.updateSettings({
-        deviceId: document.getElementById('device-id').value.trim(),
-        priority: parseInt(document.getElementById('priority').value),
-        upstash: {
-          url: document.getElementById('api-url').value.trim(),
-          token: document.getElementById('api-key').value.trim()
-        }
-      });
-
-      if (result.success) {
-        await window.api.completeOnboarding();
-      }
-    }
-
-    setStep(1);
-  </script>
+  <script src="./index.js"></script>
 </body>
 </html>
