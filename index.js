@@ -29,7 +29,7 @@ function createWindow() {
     });
 
     window.setMenuBarVisibility(false);
-    window.loadFile(path.join(__dirname, 'app', 'loading.html'));
+    window.loadFile(path.join(__dirname, 'app', 'loading', 'index.html'));
 
     window.once('ready-to-show', () => {
         window.show();
