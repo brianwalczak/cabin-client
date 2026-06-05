@@ -93,8 +93,8 @@
     function nextStep() { setStep(step + 1); }
     function prevStep() { setStep(step - 1); }
 
-    function finish() {
-      window.api.updateSettings({
+    async function finish() {
+      const result = await window.api.updateSettings({
         deviceId: document.getElementById('device-id').value.trim(),
         priority: parseInt(document.getElementById('priority').value),
         upstash: {
@@ -102,6 +102,10 @@
           token: document.getElementById('api-key').value.trim()
         }
       });
+
+      if (result.success) {
+        await window.api.completeOnboarding();
+      }
     }
 
     setStep(1);

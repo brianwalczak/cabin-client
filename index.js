@@ -58,7 +58,7 @@ ipcMain.on('status', async (event, details) => {
         if (!redis) {
             throw new Error('Redis client is not initialized.');
         }
-        
+
         await redis.set('status', details);
         dialog.showMessageBox(window, {
             type: 'info',
@@ -70,7 +70,7 @@ ipcMain.on('status', async (event, details) => {
     }
 });
 
-ipcMain.on("settings", async (event, config) => {
+ipcMain.handle("settings", async (event, config) => {
     const result = await updateSettings(settingsPath, config);
 
     if (!result.success) {
@@ -80,12 +80,19 @@ ipcMain.on("settings", async (event, config) => {
     return result;
 });
 
-(async () => {
+ipcMain.on("onboarding-complete", () => init(true));
+
+async function init(isOnboarding = false) {
     try {
         const settings = await getSettings(settingsPath);
 
         if (!isConfigValid(settings)) {
-            window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            if (!isOnboarding) {
+                window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            } else {
+                dialog.showErrorBox('Invalid Settings!', 'The settings you provided are invalid. Please check your configuration and try again.');
+            }
+
             return;
         }
 
@@ -94,7 +101,7 @@ ipcMain.on("settings", async (event, config) => {
 
         if (!isValid) {
             dialog.showErrorBox('Connection Failed!', 'Failed to connect to Redis with the provided settings. Please check your configuration and try again.');
-            window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            if (!isOnboarding) window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
             return;
         }
 
@@ -103,4 +110,6 @@ ipcMain.on("settings", async (event, config) => {
         dialog.showErrorBox('Settings Failed!', `An unknown error occurred while verifying your settings:\n${error.message}`);
         process.exit();
     }
-})();
+};
+
+init(false);
