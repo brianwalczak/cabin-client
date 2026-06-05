@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getStatus } from './status.js';
+import { isDeepStrictEqual } from 'util';
 import { createRedisClient, isRedisClientValid } from './redis.js';
 import { getSettings, updateSettings, isConfigValid } from './settings.js';
 
@@ -67,7 +68,7 @@ ipcMain.handle("settings:set", async (event, config) => {
         dialog.showErrorBox('Settings Error!', `An unknown error occurred while updating your settings:\n${result.reason}`);
     }
 
-    if (config.status) {
+    if (config.status && typeof config.status === 'object' && !isDeepStrictEqual(config.status, result.data?.status || {})) {
         tick(); // immediately update the status in Redis and UI if the status settings were changed
     }
 
