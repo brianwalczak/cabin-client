@@ -15,3 +15,20 @@
   font-style: normal;
   font-display: swap;
 }
+
+body {
+  font-family: "Overused Grotesk", system-ui, sans-serif;
+}
+
+.mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2a2a2e;
+    border-radius: 2px;
+}

@@ -1,14 +1,13 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import createRedisClient from './redis.js';
+import { createRedisClient, isRedisClientValid } from './redis.js';
+import { getSettings, isConfigValid } from './settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const settingsPath = path.join((app.isPackaged ? app.getPath('userData') : __dirname), 'settings.json');
-let settings;
 let window;
 let redis;
 
@@ -27,7 +26,7 @@ function createWindow() {
     });
 
     window.setMenuBarVisibility(false);
-    window.loadFile(path.join(__dirname, 'app', 'index.html'));
+    window.loadFile(path.join(__dirname, 'app', 'loading.html'));
 
     window.once('ready-to-show', () => {
         window.show();
@@ -54,7 +53,7 @@ app.on('window-all-closed', () => {
     }
 });
 
-ipcMain.on('update', async (event, details) => {
+ipcMain.on('status', async (event, details) => {
     try {
         if (!redis) {
             throw new Error('Redis client is not initialized.');
@@ -71,37 +70,33 @@ ipcMain.on('update', async (event, details) => {
     }
 });
 
+ipcMain.on("settings", async (event, config) => {
+    try {
+
+    } catch {} ;
+});
+
 (async () => {
     try {
-        const defaults = {
-            upstash: {
-                url: "",
-                token: ""
-            }
-        };
-        let data;
+        const settings = await getSettings(settingsPath);
 
-        if (fs.existsSync(settingsPath)) {
-            const file = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-            data = { ...defaults, ...file }; // apply defaults if missing
-        } else {
-            data = defaults;
+        if (!isConfigValid(settings)) {
+            window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            return;
         }
 
-        fs.writeFileSync(settingsPath, JSON.stringify(data, null, 4));
-        settings = data;
+        redis = createRedisClient(settings.upstash.url, settings.upstash.token);
+        const isValid = await isRedisClientValid(redis);
 
-        const url = data.upstash?.url;
-        const token = data.upstash?.token;
-
-        if (!url || !token) {
-            dialog.showErrorBox('Misconfiguration Error!', `Missing 'upstash.url' and/or 'upstash.token' in settings. :[\n\nPlease configure them here:\n${settingsPath}`);
-            process.exit();
+        if (!isValid) {
+            dialog.showErrorBox('Connection Failed!', 'Failed to connect to Redis with the provided settings. Please check your configuration and try again.');
+            window.loadFile(path.join(__dirname, 'app', 'onboarding.html'));
+            return;
         }
 
-        redis = createRedisClient(url, token);
+        window.loadFile(path.join(__dirname, 'app', 'index.html'));
     } catch (error) {
-        dialog.showErrorBox('Settings Failed!', `An unknown error occurred while loading your settings:\n${error.message}`);
+        dialog.showErrorBox('Settings Failed!', `An unknown error occurred while verifying your settings:\n${error.message}`);
         process.exit();
     }
 })();
