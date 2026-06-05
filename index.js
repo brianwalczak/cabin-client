@@ -67,6 +67,10 @@ ipcMain.handle("settings:set", async (event, config) => {
         dialog.showErrorBox('Settings Error!', `An unknown error occurred while updating your settings:\n${result.reason}`);
     }
 
+    if (config.status) {
+        tick(); // immediately update the status in Redis and UI if the status settings were changed
+    }
+
     return result;
 });
 
