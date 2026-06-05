@@ -1,4 +1,4 @@
-import { readFile, saveFile } from './utils.js';
+import { readFile, saveFile, mergeDeep } from './utils.js';
 import { isDeepStrictEqual } from 'util';
 import os from 'os';
 
@@ -6,6 +6,10 @@ const defaults = {
     deviceId: os.hostname(),
     priority: 1,
     upstash: { url: "", token: "" }
+};
+
+function isConfigValid(data) {
+  return !!(data?.upstash?.url && data?.upstash?.token && data?.deviceId && data?.priority);
 };
 
 async function getSettings(path) {
@@ -31,8 +35,18 @@ async function getSettings(path) {
     }
 };
 
-function isConfigValid(data) {
-  return !!(data?.upstash?.url && data?.upstash?.token && data?.deviceId && data?.priority);
+async function updateSettings(path, data) {
+    const settings = await getSettings(path);
+    if (!data || typeof data !== "object") return { success: false, reason: "Invalid settings data provided!" };
+
+    try {
+        mergeDeep(settings, data);
+        await saveFile(path, settings);
+        
+        return { success: true, data: settings };
+    } catch (error) {
+        return { success: false, reason: error.toString() };
+    }
 }
 
-export { getSettings, isConfigValid };
+export { isConfigValid, getSettings, updateSettings };

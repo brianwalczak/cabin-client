@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRedisClient, isRedisClientValid } from './redis.js';
-import { getSettings, isConfigValid } from './settings.js';
+import { getSettings, updateSettings, isConfigValid } from './settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,9 +71,13 @@ ipcMain.on('status', async (event, details) => {
 });
 
 ipcMain.on("settings", async (event, config) => {
-    try {
+    const result = await updateSettings(settingsPath, config);
 
-    } catch {} ;
+    if (!result.success) {
+        dialog.showErrorBox('Settings Error!', `An unknown error occurred while updating your settings:\n${result.reason}`);
+    }
+
+    return result;
 });
 
 (async () => {
