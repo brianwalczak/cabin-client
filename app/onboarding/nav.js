@@ -3,7 +3,7 @@ let step = 1;
 function setStep(num) {
     const steps = document.getElementsByClassName('step');
     const dots = document.getElementsByClassName('dot');
-    if (num > steps.length) return finish();
+    if (num > steps.length) return window?.finish();
 
     // reset all steps and dots
     for (let i = 0; i < steps.length; i++) {
@@ -23,20 +23,5 @@ function setStep(num) {
 
 function nextStep() { setStep(step + 1); }
 function prevStep() { setStep(step - 1); }
-
-async function finish() {
-    const result = await window.api.updateSettings({
-        deviceId: document.getElementById('device-id').value.trim(),
-        priority: parseInt(document.getElementById('priority').value),
-        upstash: {
-            url: document.getElementById('api-url').value.trim(),
-            token: document.getElementById('api-key').value.trim()
-        }
-    });
-
-    if (result.success) {
-        await window.api.completeOnboarding();
-    }
-}
 
 setStep(1);
