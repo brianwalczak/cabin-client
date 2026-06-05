@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getStatus } from './status.js';
 import { createRedisClient, isRedisClientValid } from './redis.js';
 import { getSettings, updateSettings, isConfigValid } from './settings.js';
 
@@ -8,6 +9,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const settingsPath = path.join((app.isPackaged ? app.getPath('userData') : __dirname), 'settings.json');
+const INTERVAL_TIME = 30000; // 30 seconds
+let interval;
 let window;
 let redis;
 
@@ -53,24 +56,11 @@ app.on('window-all-closed', () => {
     }
 });
 
-ipcMain.on('status', async (event, details) => {
-    try {
-        if (!redis) {
-            throw new Error('Redis client is not initialized.');
-        }
-
-        await redis.set('status', details);
-        dialog.showMessageBox(window, {
-            type: 'info',
-            title: 'Status Updated!',
-            message: 'Your status has been successfully updated, and will be shown on the website shortly. :)',
-        });
-    } catch (error) {
-        dialog.showErrorBox('Redis Error!', `An unknown error occurred while updating status in Redis:\n${error.message}`);
-    }
+ipcMain.handle("settings:get", async () => {
+    return await getSettings(settingsPath);
 });
 
-ipcMain.handle("settings", async (event, config) => {
+ipcMain.handle("settings:set", async (event, config) => {
     const result = await updateSettings(settingsPath, config);
 
     if (!result.success) {
@@ -81,6 +71,17 @@ ipcMain.handle("settings", async (event, config) => {
 });
 
 ipcMain.on("onboarding-complete", () => init(true));
+
+async function tick() {
+    try {
+        const status = await getStatus(settingsPath, true);
+        if (window) {
+            window.webContents.send('status', status);
+        }
+
+        await redis.set('status', JSON.stringify(status));
+    } catch {};
+}
 
 async function init(isOnboarding = false) {
     try {
@@ -106,6 +107,9 @@ async function init(isOnboarding = false) {
         }
 
         window.loadFile(path.join(__dirname, 'app', 'index.html'));
+
+        if (!interval) interval = setInterval(tick, INTERVAL_TIME);
+        window.webContents.once('did-finish-load', () => tick());
     } catch (error) {
         dialog.showErrorBox('Settings Failed!', `An unknown error occurred while verifying your settings:\n${error.message}`);
         process.exit();

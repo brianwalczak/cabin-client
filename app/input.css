@@ -1,5 +1,8 @@
 @import "tailwindcss" source(".");
 
+/* found them all from https://tailwindcss.com/docs/background-color */
+@source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone,mauve,olive,mist,taupe}-400");
+
 @font-face {
   font-family: 'Overused Grotesk';
   src: url('../static/fonts/OverusedGrotesk.ttf') format('truetype');

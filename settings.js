@@ -5,7 +5,12 @@ import os from 'os';
 const defaults = {
     deviceId: os.hostname(),
     priority: 1,
-    upstash: { url: "", token: "" }
+    upstash: { url: "", token: "" },
+    status: {
+        enabled: true,
+        manual: null,
+        mappings: []
+    }
 };
 
 function isConfigValid(data) {
@@ -22,6 +27,11 @@ async function getSettings(path) {
             upstash: {
                 url: settings?.upstash?.url ?? defaults.upstash.url,
                 token: settings?.upstash?.token ?? defaults.upstash.token
+            },
+            status: {
+                enabled: settings?.status?.enabled ?? defaults.status.enabled,
+                manual: settings?.status?.manual ?? defaults.status.manual,
+                mappings: settings?.status?.mappings ?? defaults.status.mappings
             }
         };
 
