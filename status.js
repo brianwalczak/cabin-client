@@ -1,4 +1,5 @@
 import { getSettings, isConfigValid } from './settings.js';
+import { activeWindow } from 'get-windows';
 let lastUpdate = new Date(0).toISOString();
 
 async function getStatus(path, tick = false) {
@@ -22,9 +23,10 @@ async function getStatus(path, tick = false) {
 
     // Otherwise, we gotta check all the apps open and stuff
     const mappings = status.mappings || [];
-    const currentApp = "Visual Studio Code"; // temporary for now, REPLACE WITH ACTUAL CURRENT APP LATER
+    const active = await activeWindow();
+    if (!active?.owner?.name) return {}; // no active app (???), can't do anything
 
-    const mapping = mappings.find(m => m.app === currentApp);
+    const mapping = mappings.find(m => m.app === active.owner.name);
     if (!mapping) return {}; // no mapping for this app
 
     return {

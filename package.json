@@ -67,6 +67,7 @@
     "tailwindcss": "^4.1.14"
   },
   "dependencies": {
-    "@upstash/redis": "^1.38.0"
+    "@upstash/redis": "^1.38.0",
+    "get-windows": "^9.3.0"
   }
 }
