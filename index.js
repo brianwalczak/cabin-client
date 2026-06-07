@@ -82,16 +82,17 @@ async function tick() {
         const status = await getStatus(settingsPath, true);
         const settings = await getSettings(settingsPath);
 
-        const payload = await redis.get('status') || {};
-        payload[settings.deviceId] = {
-            priority: settings.priority,
-            status: status
+        const existing = await redis.get('status') || {};
+        const payload = {
+            ...existing,
+            [settings.deviceId]: {
+                priority: settings.priority,
+                status: status
+            }
         };
         
-        if (window) {
-            window.webContents.send('status', status);
-        }
-
+        if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
+        if (window) window.webContents.send('status', status);
         await redis.set('status', JSON.stringify(payload));
     } catch {};
 }
