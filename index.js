@@ -91,8 +91,8 @@ async function tick() {
             }
         };
         
-        if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
         if (window) window.webContents.send('status', status);
+        if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
         await redis.set('status', JSON.stringify(payload));
     } catch {};
 }
