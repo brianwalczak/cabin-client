@@ -80,11 +80,19 @@ ipcMain.on("onboarding-complete", () => init(true));
 async function tick() {
     try {
         const status = await getStatus(settingsPath, true);
+        const settings = await getSettings(settingsPath);
+
+        const payload = await redis.get('status') || {};
+        payload[settings.deviceId] = {
+            priority: settings.priority,
+            status: status
+        };
+        
         if (window) {
             window.webContents.send('status', status);
         }
 
-        await redis.set('status', JSON.stringify(status));
+        await redis.set('status', JSON.stringify(payload));
     } catch {};
 }
 
