@@ -59,11 +59,11 @@ app.on("window-all-closed", () => {
 });
 
 ipcMain.handle("settings:get", async () => {
-	return await getSettings(settingsPath);
+	return await getSettings();
 });
 
 ipcMain.handle("settings:set", async (event, config) => {
-	const result = await updateSettings(settingsPath, config);
+	const result = await updateSettings(config);
 
 	if (!result.success) {
 		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
@@ -81,7 +81,7 @@ ipcMain.on("onboarding-complete", () => init(true));
 async function tick() {
 	try {
 		const status = await getStatus(settingsPath, true);
-		const settings = await getSettings(settingsPath);
+		const settings = await getSettings();
 
 		const existing = (await redis.get("status")) || {};
 		const payload = {
@@ -100,7 +100,7 @@ async function tick() {
 
 async function init(isOnboarding = false) {
 	try {
-		const settings = await getSettings(settingsPath);
+		const settings = await getSettings();
 
 		if (!isConfigValid(settings)) {
 			if (!isOnboarding) {
