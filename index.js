@@ -43,6 +43,7 @@ function createWindow() {
 
 app.whenReady().then(async () => {
 	createWindow();
+    init(false);
 
 	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) {
@@ -95,7 +96,7 @@ async function tick() {
 		if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
 		await redis.set("status", JSON.stringify(payload));
 	} catch {}
-}
+};
 
 async function init(isOnboarding = false) {
 	try {
@@ -128,6 +129,4 @@ async function init(isOnboarding = false) {
 		dialog.showErrorBox("Settings Failed!", `An unknown error occurred while verifying your settings:\n${error.message}`);
 		process.exit();
 	}
-}
-
-init(false);
+};
