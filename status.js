@@ -1,13 +1,13 @@
 import { getSettings, isConfigValid } from './settings.js';
 import { activeWindow } from 'get-windows';
-let lastUpdate = new Date(0).toISOString();
+import { globals } from './shared.js';
 
-async function getStatus(path, tick = false) {
-    const settings = await getSettings(path);
+async function getStatus(tick = false) {
+    const settings = await getSettings();
     if (!isConfigValid(settings)) return {};
     const status = settings.status || {};
     
-    if (tick) lastUpdate = new Date().toISOString();
+    if (tick) globals.lastUpdate = new Date().toISOString();
 
     if (status?.enabled != true) {
         return {}; // status disabled (invisible mode)
@@ -17,7 +17,7 @@ async function getStatus(path, tick = false) {
         // use manual override data
         return {
             ...status.manual,
-            updatedAt: lastUpdate
+            updatedAt: globals.lastUpdate
         };
     }
 
@@ -31,7 +31,7 @@ async function getStatus(path, tick = false) {
 
     return {
         ...mapping,
-        updatedAt: lastUpdate
+        updatedAt: globals.lastUpdate
     }
 };
 
