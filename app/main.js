@@ -4,143 +4,147 @@ let deviceId = null;
 
 // Listen for status updates from the main process and update the UI!
 window.api.onStatus((status) => {
-    document.querySelector('#live-header').textContent = status.header || 'No status set.';
-    document.querySelector('#live-label').textContent = status.label || 'You currently have no status! Set one up by creating mappings or use an override :)';
-    document.querySelector('#live-dot').className = `size-2 rounded-full mt-1.5 ${status.pulse ? 'animate-pulse' : ''} bg-${status.color || 'red'}-400`;
-    document.querySelector('#push-details').classList.toggle('hidden', !status.updatedAt);
-    lastStatus = status;
+	document.querySelector("#live-header").textContent = status.header || "No status set.";
+	document.querySelector("#live-label").textContent = status.label || "You currently have no status! Set one up by creating mappings or use an override :)";
+	document.querySelector("#live-dot").className = `size-2 rounded-full mt-1.5 ${status.pulse ? "animate-pulse" : ""} bg-${status.color || "red"}-400`;
+	document.querySelector("#push-details").classList.toggle("hidden", !status.updatedAt);
+	lastStatus = status;
 });
 
 // Update the "Pushed Xs ago" text every second
 setInterval(() => {
-    document.querySelector('#push-details').classList.toggle('hidden', !lastStatus?.updatedAt);
-    if (!lastStatus?.updatedAt) {
-        return;
-    }
+	document.querySelector("#push-details").classList.toggle("hidden", !lastStatus?.updatedAt);
+	if (!lastStatus?.updatedAt) {
+		return;
+	}
 
-    const secs = Math.floor((Date.now() - new Date(lastStatus.updatedAt).getTime()) / 1000);
-    document.querySelector('#push-details').textContent = `Pushed ${secs}s ago${deviceId ? ' · ' + deviceId : ''}`;
+	const secs = Math.floor((Date.now() - new Date(lastStatus.updatedAt).getTime()) / 1000);
+	document.querySelector("#push-details").textContent = `Pushed ${secs}s ago${deviceId ? " · " + deviceId : ""}`;
 }, 1000);
 
 // Apply the override settings (header, label, pulse, color) by saving
+// eslint-disable-next-line no-unused-vars
 function applyOverride() {
-    const header = document.querySelector('#override-header').value.trim();
-    const label = document.querySelector('#override-label').value.trim();
-    const pulse = document.querySelector('#pulse').getAttribute('data-enabled') === 'true';
-    const color = document.querySelector('#color').getAttribute('data-color').trim();
-    document.querySelector('#clear-btn').classList.remove('hidden');
+	const header = document.querySelector("#override-header").value.trim();
+	const label = document.querySelector("#override-label").value.trim();
+	const pulse = document.querySelector("#pulse").getAttribute("data-enabled") === "true";
+	const color = document.querySelector("#color").getAttribute("data-color").trim();
+	document.querySelector("#clear-btn").classList.remove("hidden");
 
-    // save new status settings with manual override
-    return window.api.updateSettings({
-        status: {
-            manual: {
-                header,
-                label,
-                pulse,
-                color
-            }
-        }
-    });
-};
+	// save new status settings with manual override
+	return window.api.updateSettings({
+		status: {
+			manual: {
+				header,
+				label,
+				pulse,
+				color,
+			},
+		},
+	});
+}
 
 // Clear the override by setting it to null (use mappings)
+// eslint-disable-next-line no-unused-vars
 function clearOverride() {
-    // reset all the fields
-    document.querySelector('#override-header').value = '';
-    document.querySelector('#override-label').value = '';
-    selectColor(COLORS[0]);
-    setTrack(document.querySelector('#pulse'), false);
-    document.querySelector('#clear-btn').classList.add('hidden');
+	// reset all the fields
+	document.querySelector("#override-header").value = "";
+	document.querySelector("#override-label").value = "";
+	selectColor(COLORS[0]);
+	setTrack(document.querySelector("#pulse"), false);
+	document.querySelector("#clear-btn").classList.add("hidden");
 
-    // save new status settings with manual override cleared
-    return window.api.updateSettings({
-        status: {
-            manual: null
-        }
-    });
-};
+	// save new status settings with manual override cleared
+	return window.api.updateSettings({
+		status: {
+			manual: null,
+		},
+	});
+}
 
 // Toggle invisible mode (status disabled)
+// eslint-disable-next-line no-unused-vars
 function toggleInvisible() {
-    const container = document.querySelector('#invisible');
-    toggleTrack(container);
+	const container = document.querySelector("#invisible");
+	toggleTrack(container);
 
-    // save new invisible mode setting
-    return window.api.updateSettings({
-        status: {
-            enabled: container.getAttribute('data-enabled') !== 'true'
-        }
-    });
+	// save new invisible mode setting
+	return window.api.updateSettings({
+		status: {
+			enabled: container.getAttribute("data-enabled") !== "true",
+		},
+	});
 }
 
 // Populate the fields with the current settings (if they exist)
 async function populateSettings() {
-    const settings = await window.api.getSettings();
-    const status = settings.status || {};
-    deviceId = settings.deviceId;
+	const settings = await window.api.getSettings();
+	const status = settings.status || {};
+	deviceId = settings.deviceId;
 
-    // check if there's any manual override data to pre-populate
-    if (status?.manual && typeof status.manual === 'object') {
-        document.querySelector('#override-header').value = status.manual.header || '';
-        document.querySelector('#override-label').value = status.manual.label || '';
-        selectColor(status.manual.color);
+	// check if there's any manual override data to pre-populate
+	if (status?.manual && typeof status.manual === "object") {
+		document.querySelector("#override-header").value = status.manual.header || "";
+		document.querySelector("#override-label").value = status.manual.label || "";
+		selectColor(status.manual.color);
 
-        if (status.manual.pulse === true) {
-            setTrack(document.querySelector('#pulse'), true);
-        }
+		if (status.manual.pulse === true) {
+			setTrack(document.querySelector("#pulse"), true);
+		}
 
-        document.querySelector('#clear-btn').classList.remove('hidden');
-    }
+		document.querySelector("#clear-btn").classList.remove("hidden");
+	}
 
-    // if invisble mode is enabled, toggle it on
-    if (status.enabled === false) {
-        setTrack(document.querySelector('#invisible'), true);
-    }
-};
+	// if invisble mode is enabled, toggle it on
+	if (status.enabled === false) {
+		setTrack(document.querySelector("#invisible"), true);
+	}
+}
 
 // Set the track to the specific enabled state
 function setTrack(container, enabled) {
-    const track = container.querySelector('div');
-    const thumb = track.querySelector('div');
+	const track = container.querySelector("div");
+	const thumb = track.querySelector("div");
 
-    thumb.classList.toggle('translate-x-4', enabled);
-    thumb.classList.toggle('translate-x-0', !enabled);
-    track.classList.toggle('bg-green-500/50', enabled);
-    track.classList.toggle('bg-white/5', !enabled);
-    container.setAttribute('data-enabled', enabled.toString());
+	thumb.classList.toggle("translate-x-4", enabled);
+	thumb.classList.toggle("translate-x-0", !enabled);
+	track.classList.toggle("bg-green-500/50", enabled);
+	track.classList.toggle("bg-white/5", !enabled);
+	container.setAttribute("data-enabled", enabled.toString());
 }
 
 // Toggle track on/off (for invisible and pulse)
 function toggleTrack(container) {
-    const track = container.querySelector('div');
-    const thumb = track.querySelector('div');
-    const isOn = thumb.classList.contains('translate-x-4');
+	const track = container.querySelector("div");
+	const thumb = track.querySelector("div");
+	const isOn = thumb.classList.contains("translate-x-4");
 
-    return setTrack(container, !isOn);
+	return setTrack(container, !isOn);
 }
 
 // Toggle the color dropdown visibility
+// eslint-disable-next-line no-unused-vars
 function toggleColors() {
-    document.querySelector('#color-options').classList.toggle('hidden');
+	document.querySelector("#color-options").classList.toggle("hidden");
 }
 
 // Select a color from the dropdown and update the UI
 function selectColor(name) {
-    document.querySelector('#color').setAttribute('data-color', name);
-    document.querySelector('#color-dot').className = `w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400`;
-    document.querySelector('#color-label').textContent = name;
-    document.querySelector('#color-options').classList.add('hidden');
+	document.querySelector("#color").setAttribute("data-color", name);
+	document.querySelector("#color-dot").className = `w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400`;
+	document.querySelector("#color-label").textContent = name;
+	document.querySelector("#color-options").classList.add("hidden");
 }
 
 // Populate the color options in the dropdown
 for (const name of COLORS) {
-    const btn = document.createElement('button');
+	const btn = document.createElement("button");
 
-    btn.type = 'button';
-    btn.className = 'w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors text-left cursor-pointer';
-    btn.innerHTML = `<div class="w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400"></div><span>${name}</span>`;
-    btn.onclick = () => selectColor(name);
-    document.querySelector('#color-options').appendChild(btn);
+	btn.type = "button";
+	btn.className = "w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors text-left cursor-pointer";
+	btn.innerHTML = `<div class="w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400"></div><span>${name}</span>`;
+	btn.onclick = () => selectColor(name);
+	document.querySelector("#color-options").appendChild(btn);
 }
 
 selectColor(COLORS[0]); // just default to first color

@@ -1,73 +1,80 @@
 {
-  "name": "cabin-client",
-  "productName": "Brian's Cabin (Client)",
-  "version": "1.0.0",
-  "description": "A desktop client for Brian's Cabin, which is used to report my live status.",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "start": "npx electron .",
-    "pack": "npx electron-builder --dir",
-    "dist": "npx electron-builder",
-    "build:css": "npx @tailwindcss/cli -i ./app/input.css -o ./static/css/output.css"
-  },
-  "author": {
-    "name": "Brian Walczak",
-    "email": "me@brian.re"
-  },
-  "license": "Apache-2.0",
-  "build": {
-    "appId": "com.brianwalczak.cabin-client",
-    "icon": "static/img/logo.png",
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "static/img/logo.png"
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "universal"
-          ]
-        }
-      ]
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ]
-    },
-    "publish": null,
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": false,
-      "perMachine": false,
-      "runAfterFinish": true
-    }
-  },
-  "devDependencies": {
-    "@tailwindcss/cli": "^4.1.14",
-    "electron": "^38.2.2",
-    "electron-builder": "^26.0.12",
-    "tailwindcss": "^4.1.14"
-  },
-  "dependencies": {
-    "@upstash/redis": "^1.38.0",
-    "get-windows": "^9.3.0"
-  }
+	"name": "cabin-client",
+	"productName": "Brian's Cabin (Client)",
+	"version": "1.0.0",
+	"description": "A desktop client for Brian's Cabin, which is used to report my live status.",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "npx electron .",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"pack": "npx electron-builder --dir",
+		"dist": "npx electron-builder",
+		"build:css": "npx @tailwindcss/cli -i ./app/input.css -o ./static/css/output.css",
+		"format": "prettier . --write",
+		"format:check": "prettier . --check"
+	},
+	"author": {
+		"name": "Brian Walczak",
+		"email": "me@brian.re"
+	},
+	"license": "Apache-2.0",
+	"build": {
+		"appId": "com.brianwalczak.cabin-client",
+		"icon": "static/img/logo.png",
+		"win": {
+			"target": [
+				{
+					"target": "nsis",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				}
+			],
+			"icon": "static/img/logo.png"
+		},
+		"mac": {
+			"target": [
+				{
+					"target": "dmg",
+					"arch": [
+						"universal"
+					]
+				}
+			]
+		},
+		"linux": {
+			"target": [
+				{
+					"target": "deb",
+					"arch": [
+						"x64",
+						"arm64"
+					]
+				}
+			]
+		},
+		"publish": null,
+		"nsis": {
+			"oneClick": false,
+			"allowToChangeInstallationDirectory": false,
+			"perMachine": false,
+			"runAfterFinish": true
+		}
+	},
+	"devDependencies": {
+		"@electron-toolkit/eslint-config": "^2.1.0",
+		"@tailwindcss/cli": "^4.1.14",
+		"electron": "^38.2.2",
+		"electron-builder": "^26.0.12",
+		"eslint": "^10.4.1",
+		"prettier": "^3.8.3",
+		"tailwindcss": "^4.1.14"
+	},
+	"dependencies": {
+		"@upstash/redis": "^1.38.0",
+		"get-windows": "^9.3.0"
+	}
 }

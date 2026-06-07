@@ -1,72 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brian's Cabin (Client) - Setup</title>
-  <link rel="stylesheet" href="../../static/css/output.css" />
-</head>
-<body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
-  <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/20">
-    <span class="mono text-xs text-white/60">Client Setup :]</span>
-    
-    <!-- page dots (shows what step we're on) -->
-    <div class="flex gap-1.5">
-      <div class="dot size-1.5 rounded-full transition-colors"></div>
-      <div class="dot size-1.5 rounded-full transition-colors"></div>
-    </div>
-  </div>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Brian's Cabin (Client) - Setup</title>
+		<link rel="stylesheet" href="../../static/css/output.css" />
+	</head>
+	<body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
+		<div class="flex items-center justify-between px-4 py-2.5 border-b border-white/20">
+			<span class="mono text-xs text-white/60">Client Setup :]</span>
 
-  <!-- 1st step (setting a device name and priority level) -->
-  <form class="step flex flex-col flex-1 p-6" onsubmit="event.preventDefault(); nextStep();">
-    <p class="mono text-xl text-white/80 font-bold mb-5">1. Device Configuration</p>
+			<!-- page dots (shows what step we're on) -->
+			<div class="flex gap-1.5">
+				<div class="dot size-1.5 rounded-full transition-colors"></div>
+				<div class="dot size-1.5 rounded-full transition-colors"></div>
+			</div>
+		</div>
 
-    <div class="flex flex-col flex-1 gap-5"> <!-- col since i might add more stuff later -->
-      <div>
-        <p class="text-xs text-white/50 mb-1.5">Device ID</p>
-        <input type="text" id="device-id" placeholder="desktop" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-      </div>
-      <div>
-        <p class="text-xs text-white/50 mb-1.5">Priority <span class="text-white/20">(lower = shown first as status)</span></p>
-        <div class="flex items-center gap-3">
-          <input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.getElementById('priority-text').textContent = this.value" class="flex-1 accent-white" required />
-          <span id="priority-text" class="mono text-sm font-bold text-white/80 w-6">1</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="flex flex-col mt-6 gap-1.5">
-      <button type="submit" class="w-full py-2 bg-white hover:bg-white/90 text-sm text-neutral-900 font-medium rounded-lg cursor-pointer transition-colors">
-        Continue
-      </button>
-    </div>
-  </form>
+		<!-- 1st step (setting a device name and priority level) -->
+		<form
+			class="step flex flex-col flex-1 p-6"
+			onsubmit="
+				event.preventDefault();
+				nextStep();
+			"
+		>
+			<p class="mono text-xl text-white/80 font-bold mb-5">1. Device Configuration</p>
 
-  <!-- 2nd step (upstash rest api url+token) -->
-  <form class="step flex flex-col flex-1 p-6" onsubmit="event.preventDefault(); nextStep();">
-    <p class="mono text-xl text-white/80 font-bold mb-5">2. Redis Connection</p>
+			<div class="flex flex-col flex-1 gap-5">
+				<!-- col since i might add more stuff later -->
+				<div>
+					<p class="text-xs text-white/50 mb-1.5">Device ID</p>
+					<input type="text" id="device-id" placeholder="desktop" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+				</div>
+				<div>
+					<p class="text-xs text-white/50 mb-1.5">Priority <span class="text-white/20">(lower = shown first as status)</span></p>
+					<div class="flex items-center gap-3">
+						<input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.getElementById('priority-text').textContent = this.value" class="flex-1 accent-white" required />
+						<span id="priority-text" class="mono text-sm font-bold text-white/80 w-6">1</span>
+					</div>
+				</div>
+			</div>
 
-    <div class="flex flex-col flex-1 gap-5"> <!-- col since i might add more stuff later -->
-      <div>
-        <p class="text-xs text-white/50 mb-1.5">API URL</p>
-        <input type="url" id="api-url" placeholder="https://xxxxxxxxxxx.upstash.io" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-      </div>
-      <div>
-        <p class="text-xs text-white/50 mb-1.5">API Key</p>
-        <input type="password" id="api-key" placeholder="••••••••••••••••••••••••••••••••" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-      </div>
-    </div>
-    
-    <div class="flex flex-col mt-6 gap-1.5">
-      <button type="submit" class="w-full py-2 bg-white hover:bg-white/90 text-sm text-neutral-900 font-medium rounded-lg cursor-pointer transition-colors">
-        Continue
-      </button>
+			<div class="flex flex-col mt-6 gap-1.5">
+				<button type="submit" class="w-full py-2 bg-white hover:bg-white/90 text-sm text-neutral-900 font-medium rounded-lg cursor-pointer transition-colors">Continue</button>
+			</div>
+		</form>
 
-      <button type="button" onclick="prevStep()" class="w-full py-1.5 text-xs text-white/30 hover:text-white/40 cursor-pointer transition-colors">Go Back</button>
-    </div>
-  </form>
+		<!-- 2nd step (upstash rest api url+token) -->
+		<form
+			class="step flex flex-col flex-1 p-6"
+			onsubmit="
+				event.preventDefault();
+				nextStep();
+			"
+		>
+			<p class="mono text-xl text-white/80 font-bold mb-5">2. Redis Connection</p>
 
-  <script src="./main.js"></script>
-  <script src="./nav.js"></script>
-</body>
+			<div class="flex flex-col flex-1 gap-5">
+				<!-- col since i might add more stuff later -->
+				<div>
+					<p class="text-xs text-white/50 mb-1.5">API URL</p>
+					<input type="url" id="api-url" placeholder="https://xxxxxxxxxxx.upstash.io" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+				</div>
+				<div>
+					<p class="text-xs text-white/50 mb-1.5">API Key</p>
+					<input type="password" id="api-key" placeholder="••••••••••••••••••••••••••••••••" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+				</div>
+			</div>
+
+			<div class="flex flex-col mt-6 gap-1.5">
+				<button type="submit" class="w-full py-2 bg-white hover:bg-white/90 text-sm text-neutral-900 font-medium rounded-lg cursor-pointer transition-colors">Continue</button>
+
+				<button type="button" onclick="prevStep()" class="w-full py-1.5 text-xs text-white/30 hover:text-white/40 cursor-pointer transition-colors">Go Back</button>
+			</div>
+		</form>
+
+		<script src="./main.js"></script>
+		<script src="./nav.js"></script>
+	</body>
 </html>

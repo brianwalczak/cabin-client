@@ -4,34 +4,34 @@
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone,mauve,olive,mist,taupe}-400");
 
 @font-face {
-  font-family: 'Overused Grotesk';
-  src: url('../static/fonts/OverusedGrotesk.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+	font-family: "Overused Grotesk";
+	src: url("../static/fonts/OverusedGrotesk.ttf") format("truetype");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('../static/fonts/JetBrainsMono.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+	font-family: "JetBrains Mono";
+	src: url("../static/fonts/JetBrainsMono.ttf") format("truetype");
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
 }
 
 body {
-  font-family: "Overused Grotesk", system-ui, sans-serif;
+	font-family: "Overused Grotesk", system-ui, sans-serif;
 }
 
 .mono {
-  font-family: "JetBrains Mono", monospace;
+	font-family: "JetBrains Mono", monospace;
 }
 
 ::-webkit-scrollbar {
-    width: 3px;
+	width: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #2a2a2e;
-    border-radius: 2px;
+	background: #2a2a2e;
+	border-radius: 2px;
 }

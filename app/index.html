@@ -1,109 +1,107 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Brian's Cabin (Client)</title>
+		<link rel="stylesheet" href="../static/css/output.css" />
+	</head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brian's Cabin (Client)</title>
-  <link rel="stylesheet" href="../static/css/output.css" />
-</head>
+	<body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
+		<div class="flex border-b border-white/20">
+			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(1)">Status</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(2)">Mappings</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(3)">Devices</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(4)">Settings</button>
+		</div>
 
-<body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
-  <div class="flex border-b border-white/20">
-    <button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(1)">Status</button>
-    <button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(2)">Mappings</button>
-    <button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(3)">Devices</button>
-    <button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(4)">Settings</button>
-  </div>
+		<!-- status page -->
+		<div class="page flex flex-col flex-1 p-3 overflow-y-auto">
+			<div class="px-4 py-5 border-b border-white/10">
+				<p class="mono text-xs text-white/30 mb-2.5">Live Status</p>
 
-  <!-- status page -->
-  <div class="page flex flex-col flex-1 p-3 overflow-y-auto">
-    <div class="px-4 py-5 border-b border-white/10">
-      <p class="mono text-xs text-white/30 mb-2.5">Live Status</p>
+				<div class="flex items-start gap-3">
+					<div id="live-dot" class="size-2 rounded-full mt-1.5"></div>
 
-      <div class="flex items-start gap-3">
-        <div id="live-dot" class="size-2 rounded-full mt-1.5"></div>
+					<div class="min-w-0 flex-1">
+						<p class="text-sm font-medium text-white/90" id="live-header"></p>
+						<p class="text-xs text-white/40 mt-0.5" id="live-label"></p>
+					</div>
+				</div>
 
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-white/90" id="live-header"></p>
-          <p class="text-xs text-white/40 mt-0.5" id="live-label"></p>
-        </div>
-      </div>
+				<p id="push-details" class="mono text-xs text-white/40 mt-2.5"></p>
+			</div>
 
-      <p id="push-details" class="mono text-xs text-white/40 mt-2.5"></p>
-    </div>
+			<div class="px-4 py-5 border-b border-white/10">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-sm text-white/90">Invisible mode</p>
+						<p class="text-xs text-white/40 mt-0.5">Stop pushing status (to show offline)</p>
+					</div>
 
-    <div class="px-4 py-5 border-b border-white/10">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm text-white/90">Invisible mode</p>
-          <p class="text-xs text-white/40 mt-0.5">Stop pushing status (to show offline)</p>
-        </div>
+					<div id="invisible" class="relative cursor-pointer inline-flex" onclick="toggleInvisible()" data-enabled="false">
+						<div id="invisible-track" class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
+							<div id="invisible-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-        <div id="invisible" class="relative cursor-pointer inline-flex" onclick="toggleInvisible()" data-enabled="false">
-          <div id="invisible-track" class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
-            <div id="invisible-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+			<div class="px-4 py-5">
+				<p class="mono text-xs text-white/30 mb-3">Manual Override</p>
 
-    <div class="px-4 py-5">
-      <p class="mono text-xs text-white/30 mb-3">Manual Override</p>
+				<form
+					class="flex flex-col gap-3"
+					onsubmit="
+						event.preventDefault();
+						applyOverride();
+					"
+				>
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Header</p>
+						<input id="override-header" type="text" placeholder="e.g. Taking a break" class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					</div>
 
-      <form class="flex flex-col gap-3" onsubmit="event.preventDefault(); applyOverride();">
-        <div>
-          <p class="text-xs text-white/50 mb-1.5">Header</p>
-          <input id="override-header" type="text" placeholder="e.g. Taking a break"
-            class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-        </div>
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Label</p>
+						<input id="override-label" type="text" placeholder="e.g. I'm currently away from my keyboard!" class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					</div>
 
-        <div>
-          <p class="text-xs text-white/50 mb-1.5">Label</p>
-          <input id="override-label" type="text" placeholder="e.g. I'm currently away from my keyboard!"
-            class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-        </div>
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Color</p>
 
-        <div>
-          <p class="text-xs text-white/50 mb-1.5">Color</p>
+						<div class="relative">
+							<button id="color" type="button" onclick="toggleColors()" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 hover:border-white/20 rounded-md transition-colors outline-none text-left" data-color="">
+								<div id="color-dot" class="w-2.5 h-2.5 rounded-full shrink-0"></div>
+								<span id="color-label"></span>
+								<svg class="ml-auto w-3 h-3 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
 
-          <div class="relative">
-            <button id="color" type="button" onclick="toggleColors()" class="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 hover:border-white/20 rounded-md transition-colors outline-none text-left" data-color="">
-              <div id="color-dot" class="w-2.5 h-2.5 rounded-full shrink-0"></div>
-              <span id="color-label"></span>
-              <svg class="ml-auto w-3 h-3 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+							<div id="color-options" class="hidden absolute z-10 w-full mt-1 bg-neutral-800 border border-white/20 rounded-md max-h-40 overflow-y-auto"></div>
+						</div>
+					</div>
 
-            <div id="color-options" class="hidden absolute z-10 w-full mt-1 bg-neutral-800 border border-white/20 rounded-md max-h-40 overflow-y-auto"></div>
-          </div>
-        </div>
+					<div class="flex items-center justify-between">
+						<p class="text-sm text-white/90">Pulse</p>
 
-        <div class="flex items-center justify-between">
-          <p class="text-sm text-white/90">Pulse</p>
+						<div id="pulse" class="relative inline-flex cursor-pointer" onclick="toggleTrack(this)" data-enabled="false">
+							<div id="pulse-track" class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
+								<div id="pulse-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
+							</div>
+						</div>
+					</div>
 
-          <div id="pulse" class="relative inline-flex cursor-pointer" onclick="toggleTrack(this)" data-enabled="false">
-            <div id="pulse-track" class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
-              <div id="pulse-thumb" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
-            </div>
-          </div>
-        </div>
+					<div class="flex gap-2 pt-1">
+						<button type="submit" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">Apply</button>
+						<button id="clear-btn" type="button" onclick="clearOverride()" class="hidden px-4 py-2 border border-white/20 text-white/70 text-sm rounded-lg hover:bg-white/5 cursor-pointer transition-colors">Clear</button>
+					</div>
+				</form>
+			</div>
+		</div>
 
-        <div class="flex gap-2 pt-1">
-          <button type="submit" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">
-            Apply
-          </button>
-          <button id="clear-btn" type="button" onclick="clearOverride()" class="hidden px-4 py-2 border border-white/20 text-white/70 text-sm rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-            Clear
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script src="./main.js"></script>
-  <script src="./nav.js"></script>
-</body>
-
+		<script src="./main.js"></script>
+		<script src="./nav.js"></script>
+	</body>
 </html>

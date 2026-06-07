@@ -1,38 +1,38 @@
-import { getSettings, isConfigValid } from './settings.js';
-import { activeWindow } from 'get-windows';
-import { globals } from './shared.js';
+import { getSettings, isConfigValid } from "./settings.js";
+import { activeWindow } from "get-windows";
+import { globals } from "./shared.js";
 
 async function getStatus(tick = false) {
-    const settings = await getSettings();
-    if (!isConfigValid(settings)) return {};
-    const status = settings.status || {};
-    
-    if (tick) globals.lastUpdate = new Date().toISOString();
+	const settings = await getSettings();
+	if (!isConfigValid(settings)) return {};
+	const status = settings.status || {};
 
-    if (status?.enabled != true) {
-        return {}; // status disabled (invisible mode)
-    }
+	if (tick) globals.lastUpdate = new Date().toISOString();
 
-    if (status?.manual && typeof status.manual === 'object' && Object.keys(status.manual).length > 0) {
-        // use manual override data
-        return {
-            ...status.manual,
-            updatedAt: globals.lastUpdate
-        };
-    }
+	if (status?.enabled != true) {
+		return {}; // status disabled (invisible mode)
+	}
 
-    // Otherwise, we gotta check all the apps open and stuff
-    const mappings = status.mappings || [];
-    const active = await activeWindow();
-    if (!active?.owner?.name) return {}; // no active app (???), can't do anything
+	if (status?.manual && typeof status.manual === "object" && Object.keys(status.manual).length > 0) {
+		// use manual override data
+		return {
+			...status.manual,
+			updatedAt: globals.lastUpdate,
+		};
+	}
 
-    const mapping = mappings.find(m => m.app === active.owner.name);
-    if (!mapping) return {}; // no mapping for this app
+	// Otherwise, we gotta check all the apps open and stuff
+	const mappings = status.mappings || [];
+	const active = await activeWindow();
+	if (!active?.owner?.name) return {}; // no active app (???), can't do anything
 
-    return {
-        ...mapping,
-        updatedAt: globals.lastUpdate
-    }
-};
+	const mapping = mappings.find((m) => m.app === active.owner.name);
+	if (!mapping) return {}; // no mapping for this app
+
+	return {
+		...mapping,
+		updatedAt: globals.lastUpdate,
+	};
+}
 
 export { getStatus };
