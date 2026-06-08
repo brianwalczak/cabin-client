@@ -3,7 +3,7 @@
 	"productName": "Brian's Cabin (Client)",
 	"version": "1.0.0",
 	"description": "A desktop client for Brian's Cabin, which is used to report my live status.",
-	"main": "index.js",
+	"main": "main/index.js",
 	"type": "module",
 	"scripts": {
 		"start": "npx electron .",
@@ -11,7 +11,7 @@
 		"lint:fix": "eslint . --fix",
 		"pack": "npx electron-builder --dir",
 		"dist": "npx electron-builder",
-		"build:css": "npx @tailwindcss/cli -i ./app/input.css -o ./static/css/output.css",
+		"build:css": "npx @tailwindcss/cli -i ./renderer/assets/css/input.css -o ./renderer/assets/css/output.css",
 		"format": "prettier . --write",
 		"format:check": "prettier . --check"
 	},
@@ -22,7 +22,7 @@
 	"license": "Apache-2.0",
 	"build": {
 		"appId": "com.brianwalczak.cabin-client",
-		"icon": "static/img/logo.png",
+		"icon": "build/icon.png",
 		"win": {
 			"target": [
 				{
@@ -33,7 +33,7 @@
 					]
 				}
 			],
-			"icon": "static/img/logo.png"
+			"icon": "build/icon.png"
 		},
 		"mac": {
 			"target": [
