@@ -1,4 +1,6 @@
 import fs from "fs";
+import path from "path";
+import os from "os";
 
 function isObject(item) {
 	return item && typeof item === "object" && !Array.isArray(item);
@@ -43,4 +45,27 @@ function mergeDeep(target, ...sources) {
 	return mergeDeep(target, ...sources);
 }
 
-export { isObject, readFile, saveFile, mergeDeep };
+// linux needs a special implementation to enable open at login
+async function setOpenAtLogin() {
+	const dir = path.join(os.homedir(), ".config/autostart");
+	const file = path.join(dir, "cabin-client.desktop");
+
+	try {
+		await fs.promises.mkdir(dir, { recursive: true });
+
+		const content = `
+[Desktop Entry]
+Type=Application
+Name=Cabin Client
+Exec="${process.execPath}"
+Terminal=false
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+`.trim();
+
+		await fs.promises.writeFile(file, content, { encoding: "utf8" });
+	} catch {}
+}
+
+export { isObject, readFile, saveFile, mergeDeep, setOpenAtLogin };

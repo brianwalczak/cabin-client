@@ -5,16 +5,29 @@ import { getStatus } from "./status.js";
 import { isDeepStrictEqual } from "util";
 import { createRedisClient, isRedisClientValid } from "./redis.js";
 import { getSettings, updateSettings, isConfigValid } from "./settings.js";
+import { setOpenAtLogin } from "./utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const INTERVAL_TIME = 30000; // 30 seconds
+let isQuitting = false;
 let interval;
 let window;
 let redis;
 
+function showWindow() {
+	if (!window) return createWindow();
+	if (app.dock) app.dock.show();
+
+	window.show();
+	window.focus();
+	return window;
+}
+
 function createWindow() {
+	if (app.dock) app.dock.show();
+
 	window = new BrowserWindow({
 		width: 500,
 		height: 700,
@@ -31,31 +44,50 @@ function createWindow() {
 	window.setMenuBarVisibility(false);
 	window.loadFile(path.join(__dirname, "../renderer", "views", "loading", "index.html"));
 
-	window.once("ready-to-show", () => {
-		window.show();
-	});
+	window.on("close", (event) => {
+		if (!isQuitting) {
+			event.preventDefault();
+			if (app.dock) app.dock.hide();
 
-	window.on("closed", () => {
-		window = null;
-	});
-}
-
-app.whenReady().then(async () => {
-	createWindow();
-	init(false);
-
-	app.on("activate", () => {
-		if (BrowserWindow.getAllWindows().length === 0) {
-			createWindow(); // create window if none are open (macos/darwin)
+			window.destroy();
+			window = null;
 		}
 	});
-});
+
+	window.webContents.once("did-finish-load", verifyAndLaunch); // initialize the app & check for settings
+	return window;
+}
+
+if (!app.requestSingleInstanceLock()) {
+	// Second instance was launched, exit.
+	process.exit();
+} else {
+	// First instance was launched, create the window and listen for second instances.
+	app.on("second-instance", showWindow); // Second instance was launched while this one is running, focus the existing window.
+	app.whenReady().then(createWindow); // Create window once we're ready!
+}
 
 app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") {
-		app.quit();
+	// Don't quit the process when all windows are closed.
+});
+
+app.on("before-quit", () => {
+	isQuitting = true; // was triggered by OS, ACTUALLY quit instead of hiding the window
+});
+
+app.on("ready", async () => {
+	if (app.isPackaged) {
+		app.setLoginItemSettings({
+			openAtLogin: true,
+		});
+
+		if (process.platform !== "darwin" && process.platform !== "win32") {
+			await setOpenAtLogin(); // linux!!
+		}
 	}
 });
+
+app.on("activate", showWindow);
 
 ipcMain.handle("settings:get", async () => {
 	return await getSettings();
@@ -69,15 +101,15 @@ ipcMain.handle("settings:set", async (event, config) => {
 	}
 
 	if (config.status && typeof config.status === "object" && !isDeepStrictEqual(config.status, result.data?.status || {})) {
-		tick(); // immediately update the status in Redis and UI if the status settings were changed
+		syncStatus(); // immediately update the status in Redis and UI if the status settings were changed
 	}
 
 	return result;
 });
 
-ipcMain.on("onboarding-complete", () => init(true));
+ipcMain.on("onboarding-complete", () => verifyAndLaunch(true));
 
-async function tick() {
+async function syncStatus() {
 	try {
 		const status = await getStatus(true);
 		const settings = await getSettings();
@@ -97,7 +129,7 @@ async function tick() {
 	} catch {}
 }
 
-async function init(isOnboarding = false) {
+async function verifyAndLaunch(isOnboarding = false) {
 	try {
 		const settings = await getSettings();
 
@@ -122,8 +154,8 @@ async function init(isOnboarding = false) {
 
 		window.loadFile(path.join(__dirname, "../renderer", "index.html"));
 
-		if (!interval) interval = setInterval(tick, INTERVAL_TIME);
-		window.webContents.once("did-finish-load", () => tick());
+		if (!interval) interval = setInterval(syncStatus, INTERVAL_TIME);
+		window.webContents.once("did-finish-load", () => syncStatus());
 	} catch (error) {
 		dialog.showErrorBox("Settings Failed!", `An unknown error occurred while verifying your settings:\n${error.message}`);
 		process.exit();

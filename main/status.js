@@ -2,12 +2,12 @@ import { getSettings, isConfigValid } from "./settings.js";
 import { activeWindow } from "get-windows";
 import { globals } from "./shared.js";
 
-async function getStatus(tick = false) {
+async function getStatus(updateTs = false) {
 	const settings = await getSettings();
 	if (!isConfigValid(settings)) return {};
 	const status = settings.status || {};
 
-	if (tick) globals.lastUpdate = new Date().toISOString();
+	if (updateTs) globals.lastUpdate = new Date().toISOString();
 
 	if (status?.enabled != true) {
 		return {}; // status disabled (invisible mode)
