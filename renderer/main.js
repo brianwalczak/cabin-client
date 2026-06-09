@@ -27,9 +27,9 @@ setInterval(() => {
 function applyOverride() {
 	const header = document.querySelector("#override-header").value.trim();
 	const label = document.querySelector("#override-label").value.trim();
-	const pulse = document.querySelector("#pulse").getAttribute("data-enabled") === "true";
-	const color = document.querySelector("#color").getAttribute("data-color").trim();
-	document.querySelector("#clear-btn").classList.remove("hidden");
+	const pulse = document.querySelector("#override-pulse").getAttribute("data-enabled") === "true";
+	const color = document.querySelector("#override-color").getAttribute("data-color").trim();
+	document.querySelector("#override-clear").classList.remove("hidden");
 
 	// save new status settings with manual override
 	return window.api.updateSettings({
@@ -50,9 +50,9 @@ function clearOverride() {
 	// reset all the fields
 	document.querySelector("#override-header").value = "";
 	document.querySelector("#override-label").value = "";
-	selectColor(COLORS[0]);
-	setTrack(document.querySelector("#pulse"), false);
-	document.querySelector("#clear-btn").classList.add("hidden");
+	selectColor(document.querySelector("#override-color"), COLORS[0]);
+	setTrack(document.querySelector("#override-pulse"), false);
+	document.querySelector("#override-clear").classList.add("hidden");
 
 	// save new status settings with manual override cleared
 	return window.api.updateSettings({
@@ -86,13 +86,13 @@ async function populateSettings() {
 	if (status?.manual && typeof status.manual === "object") {
 		document.querySelector("#override-header").value = status.manual.header || "";
 		document.querySelector("#override-label").value = status.manual.label || "";
-		selectColor(status.manual.color);
+		selectColor(document.querySelector("#override-color"), status.manual.color);
 
 		if (status.manual.pulse === true) {
-			setTrack(document.querySelector("#pulse"), true);
+			setTrack(document.querySelector("#override-pulse"), true);
 		}
 
-		document.querySelector("#clear-btn").classList.remove("hidden");
+		document.querySelector("#override-clear").classList.remove("hidden");
 	}
 
 	// if invisble mode is enabled, toggle it on
@@ -124,28 +124,36 @@ function toggleTrack(container) {
 
 // Toggle the color dropdown visibility
 // eslint-disable-next-line no-unused-vars
-function toggleColors() {
-	document.querySelector("#color-options").classList.toggle("hidden");
+function toggleColors(container) {
+	container.querySelector(".color-dropdown-options").classList.toggle("hidden");
 }
 
 // Select a color from the dropdown and update the UI
-function selectColor(name) {
-	document.querySelector("#color").setAttribute("data-color", name);
-	document.querySelector("#color-dot").className = `w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400`;
-	document.querySelector("#color-label").textContent = name;
-	document.querySelector("#color-options").classList.add("hidden");
+function selectColor(container, name) {
+	container.setAttribute("data-color", name);
+	container.querySelector(".color-dropdown-dot").className = `color-dropdown-dot w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400`;
+	container.querySelector(".color-dropdown-label").textContent = name;
+	container.querySelector(".color-dropdown-options").classList.add("hidden");
 }
 
 // Populate the color options in the dropdown
-for (const name of COLORS) {
-	const btn = document.createElement("button");
+for (const container of document.querySelectorAll(".color-dropdown")) {
+	container.querySelector(".color-dropdown-button").onclick = () => toggleColors(container);
 
-	btn.type = "button";
-	btn.className = "w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors text-left cursor-pointer";
-	btn.innerHTML = `<div class="w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400"></div><span>${name}</span>`;
-	btn.onclick = () => selectColor(name);
-	document.querySelector("#color-options").appendChild(btn);
+	for (const name of COLORS) {
+		const btn = document.createElement("button");
+
+		btn.type = "button";
+		btn.className = "w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 transition-colors text-left cursor-pointer";
+		btn.innerHTML = `<div class="w-2.5 h-2.5 rounded-full shrink-0 bg-${name}-400"></div><span>${name}</span>`;
+		btn.onclick = () => selectColor(container, name);
+		container.querySelector(".color-dropdown-options").appendChild(btn);
+	}
+
+	// default to first color if not set
+	if (!container.getAttribute("data-color")) {
+		selectColor(container, COLORS[0]);
+	}
 }
 
-selectColor(COLORS[0]); // just default to first color
 populateSettings(); // run on page load
