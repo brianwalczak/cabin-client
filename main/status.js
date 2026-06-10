@@ -28,6 +28,7 @@ async function getStatus(updateTs = false) {
 
 	const mapping = mappings.find((m) => m.app === active.owner.name);
 	if (!mapping) return {}; // no mapping for this app
+	delete mapping.app; // we don't need to return the app name
 
 	return {
 		...mapping,
