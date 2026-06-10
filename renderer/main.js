@@ -180,8 +180,8 @@ function renderMappings(mappings = []) {
 				<span class="text-white/20 text-xs shrink-0">→</span>
 				
 				<div class="flex flex-col flex-1 min-w-0">
-					<span class="text-xs text-white/80 truncate font-medium group-hover:whitespace-normal group-hover:break-all">${mapping.header}</span>
-					${mapping.label ? `<span class="text-xs text-white/40 truncate mt-0.5 group-hover:whitespace-normal group-hover:break-all">${mapping.label}</span>` : ""}
+					<span class="text-xs text-white/80 truncate font-medium group-hover:whitespace-normal group-hover:break-all max-h-5 group-hover:max-h-32 transition-[max-height] duration-300 ease-in-out">${mapping.header}</span>
+					${mapping.label ? `<span class="text-xs text-white/40 truncate mt-0.5 group-hover:whitespace-normal group-hover:break-all max-h-5 group-hover:max-h-32 transition-[max-height] duration-300 ease-in-out">${mapping.label}</span>` : ""}
 				</div>
 			</div>
 
