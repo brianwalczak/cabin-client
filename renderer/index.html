@@ -35,7 +35,7 @@
 			<div class="px-4 py-5 border-b border-white/10">
 				<div class="flex items-center justify-between">
 					<div>
-						<p class="text-sm text-white/90">Invisible mode</p>
+						<p class="text-sm text-white/90">Invisible Mode</p>
 						<p class="text-xs text-white/40 mt-0.5">Stop pushing status (to show offline)</p>
 					</div>
 
@@ -97,6 +97,72 @@
 						<button type="submit" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">Apply</button>
 						<button id="override-clear" type="button" onclick="clearOverride()" class="hidden px-4 py-2 border border-white/20 text-white/70 text-sm rounded-lg hover:bg-white/5 cursor-pointer transition-colors">Clear</button>
 					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- mappings page -->
+		<div class="page flex flex-col flex-1 p-3 overflow-y-auto">
+			<div class="px-4 py-5 border-b border-white/10 flex-1 min-h-0 overflow-y-auto">
+				<!-- scroll if too big -->
+				<p class="mono text-xs text-white/30 mb-2.5">App Mappings</p>
+
+				<div id="mappings-list" class="flex flex-col gap-1.5"></div>
+				<p id="mappings-none" class="text-sm text-white/20 hidden">You haven't added any mappings yet!</p>
+			</div>
+
+			<div class="px-4 py-5">
+				<p class="mono text-xs text-white/30 mb-3">Add Mapping</p>
+
+				<form
+					class="flex flex-col gap-3"
+					onsubmit="
+						event.preventDefault();
+						addMapping();
+					"
+				>
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Application Name</p>
+						<input id="mapping-app" type="text" placeholder="e.g. Visual Studio Code" class="mono w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					</div>
+
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Header</p>
+						<input id="mapping-header" type="text" placeholder="e.g. Working on a project" class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					</div>
+
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Label</p>
+						<input id="mapping-label" type="text" placeholder="e.g. I'm currently coding in VS Code." class="w-full px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					</div>
+
+					<div>
+						<p class="text-xs text-white/50 mb-1.5">Color</p>
+
+						<div id="mapping-color" class="color-dropdown relative" data-color="">
+							<button type="button" class="color-dropdown-button w-full flex items-center gap-2 px-3 py-2 text-sm text-white/80 bg-white/4 border border-white/8 hover:border-white/20 rounded-md transition-colors outline-none text-left">
+								<div class="color-dropdown-dot w-2.5 h-2.5 rounded-full shrink-0"></div>
+								<span class="color-dropdown-label"></span>
+								<svg class="ml-auto w-3 h-3 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
+
+							<div class="color-dropdown-options hidden absolute z-10 w-full mt-1 bg-neutral-800 border border-white/20 rounded-md max-h-40 overflow-y-auto"></div>
+						</div>
+					</div>
+
+					<div class="flex items-center justify-between">
+						<p class="text-sm text-white/90">Pulse</p>
+
+						<div id="mapping-pulse" class="relative inline-flex cursor-pointer" onclick="toggleTrack(this)" data-enabled="false">
+							<div class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
+								<div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
+							</div>
+						</div>
+					</div>
+
+					<button type="submit" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">Add Mapping</button>
 				</form>
 			</div>
 		</div>

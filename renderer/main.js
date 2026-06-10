@@ -99,6 +99,9 @@ async function populateSettings() {
 	if (status.enabled === false) {
 		setTrack(document.querySelector("#invisible"), true);
 	}
+
+	// pre-populate the mappings list
+	renderMappings(status.mappings || []);
 }
 
 // Set the track to the specific enabled state
@@ -123,7 +126,6 @@ function toggleTrack(container) {
 }
 
 // Toggle the color dropdown visibility
-// eslint-disable-next-line no-unused-vars
 function toggleColors(container) {
 	container.querySelector(".color-dropdown-options").classList.toggle("hidden");
 }
@@ -154,6 +156,80 @@ for (const container of document.querySelectorAll(".color-dropdown")) {
 	if (!container.getAttribute("data-color")) {
 		selectColor(container, COLORS[0]);
 	}
+}
+
+function renderMappings(mappings = []) {
+	const list = document.querySelector("#mappings-list");
+	const hasNone = document.querySelector("#mappings-none");
+	list.innerHTML = "";
+
+	if (mappings.length === 0) {
+		hasNone.classList.remove("hidden");
+		return;
+	}
+
+	hasNone.classList.add("hidden");
+
+	for (const mapping of mappings) {
+		const row = document.createElement("div");
+		row.className = "group flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-white/4 border border-white/8 hover:border-white/20 transition-colors";
+		row.innerHTML = `
+			<div class="flex items-center gap-2.5 min-w-0 flex-1">
+				<div class="size-2 rounded-full shrink-0 bg-${mapping.color || "red"}-400 ${mapping.pulse ? "animate-pulse" : ""}"></div>
+				<span class="mono text-xs font-medium text-white/50 bg-white/4 border border-white/8 px-1.5 py-0.5 rounded-md truncate max-w-[40%] shrink-0">${mapping.app}</span>
+				<span class="text-white/20 text-xs shrink-0">→</span>
+				
+				<div class="flex flex-col flex-1 min-w-0">
+					<span class="text-xs text-white/80 truncate font-medium group-hover:whitespace-normal group-hover:break-all">${mapping.header}</span>
+					${mapping.label ? `<span class="text-xs text-white/40 truncate mt-0.5 group-hover:whitespace-normal group-hover:break-all">${mapping.label}</span>` : ""}
+				</div>
+			</div>
+
+			<button type="button" onclick="deleteMapping('${mapping.app.replace(/'/g, "\\'")}')" class="opacity-0 group-hover:opacity-100 text-white/30 hover:text-white/80 transition-colors text-xs p-1 cursor-pointer shrink-0">✖</button>
+		`;
+
+		list.appendChild(row);
+	}
+}
+
+// eslint-disable-next-line no-unused-vars
+async function addMapping() {
+	const app = document.querySelector("#mapping-app").value.trim();
+	const header = document.querySelector("#mapping-header").value.trim();
+	const label = document.querySelector("#mapping-label").value.trim();
+	const color = document.querySelector("#mapping-color").getAttribute("data-color");
+	const pulse = document.querySelector("#mapping-pulse").getAttribute("data-enabled") === "true";
+
+	const settings = await window.api.getSettings();
+	let mappings = settings.status?.mappings || [];
+
+	if (mappings.find((m) => m.app === app)) {
+		// app already exists, overwrite the old customization with the new one
+		mappings = mappings.map((m) => (m.app === app ? { app, header, label, color, pulse } : m));
+	} else {
+		// it's new, just add it
+		mappings.push({ app, header, label, color, pulse });
+	}
+
+	await window.api.updateSettings({ status: { mappings } });
+	renderMappings(mappings);
+
+	// reset all the form fields
+	document.querySelector("#mapping-app").value = "";
+	document.querySelector("#mapping-header").value = "";
+	document.querySelector("#mapping-label").value = "";
+	selectColor(document.querySelector("#mapping-color"), COLORS[0]);
+	setTrack(document.querySelector("#mapping-pulse"), false);
+}
+
+// eslint-disable-next-line no-unused-vars
+async function deleteMapping(app) {
+	const settings = await window.api.getSettings();
+	let mappings = settings.status?.mappings || [];
+
+	mappings = mappings.filter((m) => m.app !== app); // remove the mapping for the specified app
+	await window.api.updateSettings({ status: { mappings } });
+	renderMappings(mappings);
 }
 
 populateSettings(); // run on page load
