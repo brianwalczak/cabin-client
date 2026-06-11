@@ -126,7 +126,7 @@ async function saveSettings() {
 	if (apiUrl) payload.upstash = { url: apiUrl };
 	if (apiToken) payload.upstash = { ...(payload.upstash || {}), token: apiToken };
 
-	const result = await window.api.updateSettings(payload);
+	const result = await window.api.validateAndSetSettings(payload);
 	document.querySelector("#settings-save").textContent = result.success ? "Settings saved!" : "Failed to save.";
 	if (result.success) deviceId = deviceIdV;
 

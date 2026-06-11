@@ -108,6 +108,48 @@ ipcMain.handle("settings:set", async (event, config) => {
 	return result;
 });
 
+ipcMain.handle("settings:validate-and-set", async (event, config) => {
+	try {
+		// If upstash credentials are being changed then validate the new connection first
+		if (config.upstash?.url || config.upstash?.token) {
+			const settings = await getSettings();
+			const newUrl = config.upstash?.url ?? settings?.upstash?.url;
+			const newToken = config.upstash?.token ?? settings?.upstash?.token;
+
+			const newRedis = createRedisClient(newUrl, newToken);
+			const isValid = await isRedisClientValid(newRedis);
+
+			if (!isValid) {
+				dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");
+				return { success: false, reason: "Redis connection failed." };
+			}
+
+			// Connection was valid, so save the new settings.
+			const result = await updateSettings(config);
+
+			if (!result.success) {
+				dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
+				return result;
+			}
+
+			redis = newRedis;
+			return result;
+		}
+
+		// No Redis credentials so just save normally
+		const result = await updateSettings(config);
+
+		if (!result.success) {
+			dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
+		}
+		
+		return result;
+	} catch (error) {
+		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${error.message}`);
+		return { success: false, reason: error.message };
+	}
+});
+
 ipcMain.on("onboarding-complete", () => verifyAndLaunch(true));
 
 ipcMain.handle("unregister", async () => {
