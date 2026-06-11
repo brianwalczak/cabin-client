@@ -12,8 +12,8 @@
 
 			<!-- page dots (shows what step we're on) -->
 			<div class="flex gap-1.5">
-				<div class="dot size-1.5 rounded-full transition-colors"></div>
-				<div class="dot size-1.5 rounded-full transition-colors"></div>
+				<div class="dot size-1.5 rounded-full transition-colors bg-white/60"></div>
+				<div class="dot size-1.5 rounded-full transition-colors bg-white/20"></div>
 			</div>
 		</div>
 
@@ -49,7 +49,7 @@
 
 		<!-- 2nd step (upstash rest api url+token) -->
 		<form
-			class="step flex flex-col flex-1 p-6"
+			class="step hidden flex-col flex-1 p-6"
 			onsubmit="
 				event.preventDefault();
 				nextStep();

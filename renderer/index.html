@@ -9,9 +9,9 @@
 
 	<body class="bg-neutral-900 text-neutral-200 h-screen flex flex-col overflow-hidden select-none">
 		<div class="flex border-b border-white/20">
-			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(1)">Status</button>
-			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(2)">Mappings</button>
-			<button class="tab flex-1 py-2.5 text-xs transition-colors" onclick="setPage(3)">Settings</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors text-white/70 border-b-2 border-white/70" onclick="setPage(1)">Status</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors text-white/30 border-b-2 border-transparent" onclick="setPage(2)">Mappings</button>
+			<button class="tab flex-1 py-2.5 text-xs transition-colors text-white/30 border-b-2 border-transparent" onclick="setPage(3)">Settings</button>
 		</div>
 
 		<!-- status page -->
@@ -20,15 +20,15 @@
 				<p class="mono text-xs text-white/30 mb-2.5">Live Status</p>
 
 				<div class="flex items-start gap-3">
-					<div id="live-dot" class="size-2 rounded-full mt-1.5"></div>
+					<div id="live-dot" class="size-2 rounded-full mt-1.5 bg-red-400"></div>
 
 					<div class="min-w-0 flex-1">
-						<p class="text-sm font-medium text-white/90" id="live-header"></p>
-						<p class="text-xs text-white/40 mt-0.5" id="live-label"></p>
+						<p class="text-sm font-medium text-white/90" id="live-header">No status set.</p>
+						<p class="text-xs text-white/40 mt-0.5" id="live-label">You currently have no status! Set one up by creating mappings or use an override :)</p>
 					</div>
 				</div>
 
-				<p id="push-details" class="mono text-xs text-white/40 mt-2.5"></p>
+				<p id="push-details" class="hidden mono text-xs text-white/40 mt-2.5"></p>
 			</div>
 
 			<div class="px-4 py-5 border-b border-white/10">
@@ -101,7 +101,7 @@
 		</div>
 
 		<!-- mappings page -->
-		<div class="page flex flex-col flex-1 p-3 overflow-y-auto">
+		<div class="page hidden flex-col flex-1 p-3 overflow-y-auto">
 			<div class="px-4 py-5 border-b border-white/10 flex-1 min-h-0 overflow-y-auto">
 				<!-- scroll if too big -->
 				<p class="mono text-xs text-white/30 mb-2.5">App Mappings</p>
@@ -167,7 +167,7 @@
 		</div>
 
 		<!-- settings page -->
-		<div class="page flex flex-col flex-1 p-3 overflow-y-auto">
+		<div class="page hidden flex-col flex-1 p-3 overflow-y-auto">
 			<div class="px-4 py-5 border-b border-white/10">
 				<p class="mono text-xs text-white/30 mb-4">Device Configuration</p>
 
