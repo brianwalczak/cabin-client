@@ -35,9 +35,6 @@ function createWindow() {
 		resizable: false,
 		icon: path.join(__dirname, "../build", "icon.png"),
 		webPreferences: {
-			nodeIntegration: true,
-			contextIsolation: true,
-			sandbox: false,
 			preload: path.join(__dirname, "../preload", "index.js"),
 		},
 	});
