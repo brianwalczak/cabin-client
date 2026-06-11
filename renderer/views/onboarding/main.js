@@ -1,15 +1,24 @@
 window.finish = async function () {
-	const result = await window.api.updateSettings({
-		deviceId: document.getElementById("device-id").value.trim(),
-		priority: parseInt(document.getElementById("priority").value),
-		upstash: {
-			url: document.getElementById("api-url").value.trim(),
-			token: document.getElementById("api-key").value.trim(),
-		},
-	});
+	const btn = document.querySelector("form:nth-of-type(2) button[type='submit']");
+	btn.textContent = "Connecting...";
+	btn.disabled = true;
 
-	if (result.success) {
-		await window.api.completeOnboarding();
+	try {
+		const result = await window.api.validateAndSetSettings({
+			deviceId: document.getElementById("device-id").value.trim(),
+			priority: parseInt(document.getElementById("priority").value),
+			upstash: {
+				url: document.getElementById("api-url").value.trim(),
+				token: document.getElementById("api-key").value.trim(),
+			},
+		});
+
+		if (result.success) {
+			await window.api.completeOnboarding();
+		}
+	} finally {
+		btn.textContent = "Continue";
+		btn.disabled = false;
 	}
 };
 
