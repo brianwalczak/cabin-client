@@ -911,25 +911,11 @@
 		}
 	}
 }
-@font-face {
-	font-family: "Overused Grotesk";
-	src: url("../static/fonts/OverusedGrotesk.ttf") format("truetype");
-	font-weight: 100 900;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: "JetBrains Mono";
-	src: url("../static/fonts/JetBrainsMono.ttf") format("truetype");
-	font-weight: 100 900;
-	font-style: normal;
-	font-display: swap;
-}
 body {
-	font-family: "Overused Grotesk", system-ui, sans-serif;
+	font-family: system-ui, sans-serif;
 }
 .mono {
-	font-family: "JetBrains Mono", monospace;
+	font-family: monospace;
 }
 ::-webkit-scrollbar {
 	width: 3px;
