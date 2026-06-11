@@ -5,11 +5,11 @@ window.finish = async function () {
 
 	try {
 		const result = await window.api.validateAndSetSettings({
-			deviceId: document.getElementById("device-id").value.trim(),
-			priority: parseInt(document.getElementById("priority").value),
+			deviceId: document.querySelector("#device-id").value.trim(),
+			priority: parseInt(document.querySelector("#priority").value),
 			upstash: {
-				url: document.getElementById("api-url").value.trim(),
-				token: document.getElementById("api-key").value.trim(),
+				url: document.querySelector("#api-url").value.trim(),
+				token: document.querySelector("#api-key").value.trim(),
 			},
 		});
 
@@ -25,10 +25,11 @@ window.finish = async function () {
 async function populateSettings() {
 	const settings = await window.api.getSettings();
 
-	document.getElementById("device-id").value = settings?.deviceId || "";
-	document.getElementById("priority").value = settings?.priority || 1;
-	document.getElementById("api-url").value = settings?.upstash?.url || "";
-	document.getElementById("api-key").value = settings?.upstash?.token || "";
+	document.querySelector("#device-id").value = settings?.deviceId || "";
+	document.querySelector("#priority").value = settings?.priority || 1;
+	document.querySelector("#priority-text").textContent = settings?.priority || 1;
+	document.querySelector("#api-url").value = settings?.upstash?.url || "";
+	document.querySelector("#api-key").value = settings?.upstash?.token || "";
 }
 
 populateSettings(); // run on page load

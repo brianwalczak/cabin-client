@@ -180,7 +180,7 @@
 					<div>
 						<p class="text-xs text-white/50 mb-1.5">Priority <span class="text-white/20">(lower = shown first as status)</span></p>
 						<div class="flex items-center gap-3">
-							<input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.getElementById('priority-text').textContent = this.value" class="flex-1 accent-white" required />
+							<input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.querySelector('#priority-text').textContent = this.value" class="flex-1 accent-white" required />
 							<span id="priority-text" class="mono text-sm font-bold text-white/80 w-6">1</span>
 						</div>
 					</div>

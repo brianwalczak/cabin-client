@@ -3,5 +3,4 @@ import path from "node:path";
 
 export const globals = {
 	settingsPath: path.join(app.getPath("userData"), "settings.json"),
-	lastUpdate: new Date(0).toISOString(),
 };
