@@ -23,6 +23,12 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+            - name: Install Linux build dependencies
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y rpm
+
             - name: Build Tailwind CSS
               run: npm run build:css
 
@@ -35,6 +41,7 @@ jobs:
               with:
                   name: windows-builds
                   path: dist/*.exe
+                  if-no-files-found: error
                   retention-days: 1
 
             - name: Upload Linux artifacts
@@ -42,7 +49,11 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: linux-builds
-                  path: dist/*.deb
+                  path: |
+                      dist/*.deb
+                      dist/*.rpm
+                      dist/*.AppImage
+                  if-no-files-found: error
                   retention-days: 1
 
             - name: Upload macOS artifacts
@@ -51,4 +62,5 @@ jobs:
               with:
                   name: macos-builds
                   path: dist/*.dmg
+                  if-no-files-found: error
                   retention-days: 1
