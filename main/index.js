@@ -133,6 +133,7 @@ ipcMain.handle("settings:validate-and-set", async (event, config) => {
 			}
 
 			redis = newRedis;
+			syncStatus();
 			return result;
 		}
 
@@ -142,7 +143,11 @@ ipcMain.handle("settings:validate-and-set", async (event, config) => {
 		if (!result.success) {
 			dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
 		}
-		
+
+		if (config.status && typeof config.status === "object" && !isDeepStrictEqual(config.status, result.data?.status || {})) {
+			syncStatus(); // immediately update the status in Redis and UI if the status settings were changed
+		}
+
 		return result;
 	} catch (error) {
 		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${error.message}`);

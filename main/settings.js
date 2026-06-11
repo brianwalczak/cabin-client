@@ -37,7 +37,7 @@ async function getSettings() {
 		};
 
 		if (!isDeepStrictEqual(settings, data)) {
-			await saveFile(data);
+			await saveFile(globals.settingsPath, data);
 		}
 
 		return data;
