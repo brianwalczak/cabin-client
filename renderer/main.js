@@ -102,6 +102,54 @@ async function populateSettings() {
 
 	// pre-populate the mappings list
 	renderMappings(status.mappings || []);
+
+	// pre-populate the settings page fields
+	document.querySelector("#device-id").value = settings?.deviceId || "";
+	document.querySelector("#priority").value = settings?.priority || 1;
+	document.querySelector("#priority-text").textContent = settings?.priority || 1;
+	document.querySelector("#api-url").value = settings?.upstash?.url || "";
+	document.querySelector("#api-key").value = settings?.upstash?.token || "";
+}
+
+// Save settings from the settings page
+// eslint-disable-next-line no-unused-vars
+async function saveSettings() {
+	const deviceIdV = document.querySelector("#device-id").value.trim() || undefined;
+	const priority = parseInt(document.querySelector("#priority").value) || undefined;
+	const apiUrl = document.querySelector("#api-url").value.trim() || undefined;
+	const apiToken = document.querySelector("#api-key").value.trim() || undefined;
+	const payload = {};
+
+	// add piece-by-piece to be safe (in-case the pre-population didn't work?)
+	if (deviceIdV) payload.deviceId = deviceIdV;
+	if (priority) payload.priority = priority;
+	if (apiUrl) payload.upstash = { url: apiUrl };
+	if (apiToken) payload.upstash = { ...(payload.upstash || {}), token: apiToken };
+
+	const result = await window.api.updateSettings(payload);
+	document.querySelector("#settings-save").textContent = result.success ? "Settings saved!" : "Failed to save.";
+	if (result.success) deviceId = deviceIdV;
+
+	setTimeout(() => {
+		document.querySelector("#settings-save").textContent = "Save";
+	}, 2500);
+}
+
+// Unregister the device by wiping the Redis entry and settings
+// eslint-disable-next-line no-unused-vars
+async function unregisterDevice() {
+	const confirmed = confirm("Are you sure you want to unregister this device?\n\nThis will remove the device from the database and wipe all local settings. You'll need to go through the setup again. :(");
+	if (!confirmed) return;
+
+	const result = await window.api.unregister();
+
+	if (!result.success) {
+		document.querySelector("#settings-unregister").textContent = "Failed to unregister.";
+
+		setTimeout(() => {
+			document.querySelector("#settings-unregister").textContent = "Unregister Device";
+		}, 2500);
+	}
 }
 
 // Set the track to the specific enabled state

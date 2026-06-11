@@ -5,4 +5,5 @@ contextBridge.exposeInMainWorld("api", {
 	onStatus: (callback) => ipcRenderer.on("status", (_, data) => callback(data)),
 	updateSettings: (config) => ipcRenderer.invoke("settings:set", config),
 	completeOnboarding: () => ipcRenderer.send("onboarding-complete"),
+	unregister: () => ipcRenderer.invoke("unregister"),
 });

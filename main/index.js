@@ -5,7 +5,8 @@ import { getStatus } from "./status.js";
 import { isDeepStrictEqual } from "util";
 import { createRedisClient, isRedisClientValid } from "./redis.js";
 import { getSettings, updateSettings, isConfigValid } from "./settings.js";
-import { setOpenAtLogin } from "./utils.js";
+import { setOpenAtLogin, deleteFile } from "./utils.js";
+import { globals } from "./shared.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -108,6 +109,38 @@ ipcMain.handle("settings:set", async (event, config) => {
 });
 
 ipcMain.on("onboarding-complete", () => verifyAndLaunch(true));
+
+ipcMain.handle("unregister", async () => {
+	try {
+		const settings = await getSettings();
+
+		// remove this device's status from the Redis
+		if (redis && settings.deviceId) {
+			try {
+				const existing = (await redis.get("status")) || {};
+
+				delete existing[settings.deviceId];
+				await redis.set("status", JSON.stringify(existing));
+			} catch {}
+		}
+
+		// wipe local settings file
+		await deleteFile(globals.settingsPath);
+
+		// stop the sync interval
+		if (interval) {
+			clearInterval(interval);
+			interval = null;
+		}
+
+		// go back to onboarding
+		if (window) window.loadFile(path.join(__dirname, "../renderer", "views", "onboarding", "index.html"));
+		return { success: true };
+	} catch (error) {
+		dialog.showErrorBox("Unregister Failed!", `An error occurred while unregistering the device:\n${error.message}`);
+		return { success: false, reason: error.message };
+	}
+});
 
 async function syncStatus() {
 	try {

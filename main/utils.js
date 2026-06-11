@@ -22,8 +22,20 @@ async function saveFile(path, data) {
 		data = JSON.stringify(data, null, 2);
 	}
 
-	await fs.promises.writeFile(path, data, { encoding: "utf8" });
-	return data;
+	try {
+		await fs.promises.writeFile(path, data, { encoding: "utf8" });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function deleteFile(path) {
+	try {
+		await fs.promises.unlink(path);
+	} catch {}
+
+	return true;
 }
 
 // https://stackoverflow.com/a/34749873
@@ -68,4 +80,4 @@ X-GNOME-Autostart-enabled=true
 	} catch {}
 }
 
-export { isObject, readFile, saveFile, mergeDeep, setOpenAtLogin };
+export { isObject, readFile, saveFile, deleteFile, mergeDeep, setOpenAtLogin };
