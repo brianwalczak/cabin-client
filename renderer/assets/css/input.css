@@ -1,5 +1,18 @@
 @import "tailwindcss" source("../../");
 
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@theme {
+	--animate-fade-in: fade-in 0.5s ease forwards;
+}
+
 /* found them all from https://tailwindcss.com/docs/background-color */
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone,mauve,olive,mist,taupe}-400");
 

@@ -52,7 +52,7 @@ function createWindow() {
 		}
 	});
 
-	window.webContents.once("did-finish-load", () => verifyAndLaunch()); // initialize the app & check for settings
+	window.webContents.once("did-finish-load", () => setTimeout(() => verifyAndLaunch(), 600)); // initialize the app & check for settings
 	return window;
 }
 
