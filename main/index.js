@@ -94,18 +94,23 @@ ipcMain.handle("settings:get", async () => {
 	return await getSettings();
 });
 
-ipcMain.handle("settings:set", async (event, config) => {
+async function saveAndSyncSettings(config) {
+	const oldSettings = await getSettings();
 	const result = await updateSettings(config);
 
 	if (!result.success) {
 		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
 	}
 
-	if (config.status && typeof config.status === "object" && !isDeepStrictEqual(config.status, result.data?.status || {})) {
+	if (config.status && typeof config.status === "object" && !isDeepStrictEqual(oldSettings.status, result.data?.status || {})) {
 		syncStatus(); // immediately update the status in Redis and UI if the status settings were changed
 	}
 
 	return result;
+}
+
+ipcMain.handle("settings:set", async (event, config) => {
+	return await saveAndSyncSettings(config);
 });
 
 ipcMain.handle("settings:validate-and-set", async (event, config) => {
@@ -138,17 +143,7 @@ ipcMain.handle("settings:validate-and-set", async (event, config) => {
 		}
 
 		// No Redis credentials so just save normally
-		const result = await updateSettings(config);
-
-		if (!result.success) {
-			dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
-		}
-
-		if (config.status && typeof config.status === "object" && !isDeepStrictEqual(config.status, result.data?.status || {})) {
-			syncStatus(); // immediately update the status in Redis and UI if the status settings were changed
-		}
-
-		return result;
+		return await saveAndSyncSettings(config);
 	} catch (error) {
 		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${error.message}`);
 		return { success: false, reason: error.message };
