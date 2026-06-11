@@ -4,7 +4,7 @@ window.finish = async function () {
 	btn.disabled = true;
 
 	try {
-		const result = await window.api.validateAndSetSettings({
+		const result = await window.api.updateSettings({
 			deviceId: document.querySelector("#device-id").value.trim(),
 			priority: parseInt(document.querySelector("#priority").value),
 			upstash: {

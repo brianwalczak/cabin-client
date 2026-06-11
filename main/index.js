@@ -52,7 +52,7 @@ function createWindow() {
 		}
 	});
 
-	window.webContents.once("did-finish-load", () => setTimeout(() => verifyAndLaunch(), 600)); // initialize the app & check for settings
+	window.webContents.once("did-finish-load", () => setTimeout(() => verifyAndLaunch(true), 600)); // initialize the app & check for settings
 	return window;
 }
 
@@ -87,67 +87,58 @@ app.on("ready", async () => {
 
 app.on("activate", showWindow);
 
-ipcMain.handle("settings:get", async () => {
-	return await getSettings();
-});
+ipcMain.handle("settings:get", getSettings);
 
-async function saveAndSyncSettings(config) {
+ipcMain.handle("settings:set", async (event, config) => {
 	const oldSettings = await getSettings();
+
+	if (isDeepStrictEqual(config, oldSettings)) return { success: true, data: oldSettings }; // nothing changed, just return early
+
+	const wasInitialized = !!redis; // track if redis was already set before this handler ran
+	let newRedis = null;
+
+	// if the Upstash credentials are being changed, validate the connection and update the client
+	if (config?.upstash && !isDeepStrictEqual(config.upstash, oldSettings.upstash)) {
+		const newUrl = config.upstash.url ?? oldSettings.upstash.url;
+		const newToken = config.upstash.token ?? oldSettings.upstash.token;
+
+		newRedis = createRedisClient(newUrl, newToken);
+		const isValid = await isRedisClientValid(newRedis);
+
+		if (!isValid) {
+			dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");
+			return { success: false, reason: "Redis connection failed." };
+		}
+	}
+
 	const result = await updateSettings(config);
 
 	if (!result.success) {
 		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
+		return result;
 	}
 
-	if (config.status && typeof config.status === "object" && !isDeepStrictEqual(oldSettings.status, result.data?.status || {})) {
-		syncStatus(); // immediately update the status in Redis and UI if the status settings were changed
+	if (newRedis) redis = newRedis; // if we have a new Redis client, use it from now on (after validating the connection)
+
+	// if the device ID is being changed, update the Redis record to the new ID
+	if (redis && config.deviceId && config.deviceId !== oldSettings.deviceId) {
+		try {
+			const existing = (await redis.get("status")) || {};
+
+			if (existing[oldSettings.deviceId]) {
+				existing[config.deviceId] = existing[oldSettings.deviceId];
+				delete existing[oldSettings.deviceId];
+
+				await redis.set("status", JSON.stringify(existing));
+			}
+		} catch {}
 	}
 
+	if (wasInitialized) syncStatus(); // if not, the status will be synced when the client is initialized
 	return result;
-}
-
-ipcMain.handle("settings:set", async (event, config) => {
-	return await saveAndSyncSettings(config);
 });
 
-ipcMain.handle("settings:validate-and-set", async (event, config) => {
-	try {
-		// If upstash credentials are being changed then validate the new connection first
-		if (config.upstash?.url || config.upstash?.token) {
-			const settings = await getSettings();
-			const newUrl = config.upstash?.url ?? settings?.upstash?.url;
-			const newToken = config.upstash?.token ?? settings?.upstash?.token;
-
-			const newRedis = createRedisClient(newUrl, newToken);
-			const isValid = await isRedisClientValid(newRedis);
-
-			if (!isValid) {
-				dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");
-				return { success: false, reason: "Redis connection failed." };
-			}
-
-			// Connection was valid, so save the new settings.
-			const result = await updateSettings(config);
-
-			if (!result.success) {
-				dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${result.reason}`);
-				return result;
-			}
-
-			redis = newRedis;
-			syncStatus();
-			return result;
-		}
-
-		// No Redis credentials so just save normally
-		return await saveAndSyncSettings(config);
-	} catch (error) {
-		dialog.showErrorBox("Settings Error!", `An unknown error occurred while updating your settings:\n${error.message}`);
-		return { success: false, reason: error.message };
-	}
-});
-
-ipcMain.on("onboarding-complete", () => verifyAndLaunch(true));
+ipcMain.on("onboarding-complete", () => verifyAndLaunch(false));
 
 ipcMain.handle("unregister", async () => {
 	try {
@@ -201,27 +192,25 @@ async function syncStatus() {
 	} catch {}
 }
 
-async function verifyAndLaunch(isOnboarding = false) {
+async function verifyAndLaunch(validate = true) {
 	try {
-		const settings = await getSettings();
+		// on a cold launch, redis isn't set up yet, so validate and create the client
+		if (validate) {
+			const settings = await getSettings();
 
-		if (!isConfigValid(settings)) {
-			if (!isOnboarding) {
+			if (!isConfigValid(settings)) {
 				window.loadFile(path.join(__dirname, "../renderer", "views", "onboarding", "index.html"));
-			} else {
-				dialog.showErrorBox("Invalid Settings!", "The settings you provided are invalid. Please check your configuration and try again.");
+				return;
 			}
 
-			return;
-		}
+			redis = createRedisClient(settings.upstash.url, settings.upstash.token);
+			const isValid = await isRedisClientValid(redis);
 
-		redis = createRedisClient(settings.upstash.url, settings.upstash.token);
-		const isValid = await isRedisClientValid(redis);
-
-		if (!isValid) {
-			dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");
-			if (!isOnboarding) window.loadFile(path.join(__dirname, "../renderer", "views", "onboarding", "index.html"));
-			return;
+			if (!isValid) {
+				dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");
+				window.loadFile(path.join(__dirname, "../renderer", "views", "onboarding", "index.html"));
+				return;
+			}
 		}
 
 		window.loadFile(path.join(__dirname, "../renderer", "index.html"));
