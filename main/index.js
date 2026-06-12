@@ -8,6 +8,8 @@ import { getSettings, updateSettings, isConfigValid } from "./settings.js";
 import { setOpenAtLogin, deleteFile } from "./utils.js";
 import { globals } from "./shared.js";
 
+import "./printer.js"; // initialize printer module
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -15,7 +17,6 @@ const INTERVAL_TIME = 30000; // 30 seconds
 let isQuitting = false;
 let interval;
 let window;
-let redis;
 
 function showWindow() {
 	if (!window) return createWindow();
@@ -94,7 +95,7 @@ ipcMain.handle("settings:set", async (event, config) => {
 
 	if (isDeepStrictEqual(config, oldSettings)) return { success: true, data: oldSettings }; // nothing changed, just return early
 
-	const wasInitialized = !!redis; // track if redis was already set before this handler ran
+	const wasInitialized = !!globals.redis; // track if redis was already set before this handler ran
 	let newRedis = null;
 
 	// if the Upstash credentials are being changed, validate the connection and update the client
@@ -118,18 +119,18 @@ ipcMain.handle("settings:set", async (event, config) => {
 		return result;
 	}
 
-	if (newRedis) redis = newRedis; // if we have a new Redis client, use it from now on (after validating the connection)
+	if (newRedis) globals.redis = newRedis; // if we have a new Redis client, use it from now on (after validating the connection)
 
 	// if the device ID is being changed, update the Redis record to the new ID
-	if (redis && config.deviceId && config.deviceId !== oldSettings.deviceId) {
+	if (globals.redis && config.deviceId && config.deviceId !== oldSettings.deviceId) {
 		try {
-			const existing = (await redis.get("status")) || {};
+			const existing = (await globals.redis.get("status")) || {};
 
 			if (existing[oldSettings.deviceId]) {
 				existing[config.deviceId] = existing[oldSettings.deviceId];
 				delete existing[oldSettings.deviceId];
 
-				await redis.set("status", JSON.stringify(existing));
+				await globals.redis.set("status", JSON.stringify(existing));
 			}
 		} catch {}
 	}
@@ -145,12 +146,12 @@ ipcMain.handle("unregister", async () => {
 		const settings = await getSettings();
 
 		// remove this device's status from the Redis
-		if (redis && settings.deviceId) {
+		if (globals.redis && settings.deviceId) {
 			try {
-				const existing = (await redis.get("status")) || {};
+				const existing = (await globals.redis.get("status")) || {};
 
 				delete existing[settings.deviceId];
-				await redis.set("status", JSON.stringify(existing));
+				await globals.redis.set("status", JSON.stringify(existing));
 			} catch {}
 		}
 
@@ -162,6 +163,9 @@ ipcMain.handle("unregister", async () => {
 			clearInterval(interval);
 			interval = null;
 		}
+
+		// reset Redis client to prevent any further attempts to sync
+		globals.redis = null;
 
 		// go back to onboarding
 		if (window) window.loadFile(path.join(__dirname, "../renderer", "views", "onboarding", "index.html"));
@@ -177,7 +181,7 @@ async function syncStatus() {
 		const status = await getStatus(true);
 		const settings = await getSettings();
 
-		const existing = (await redis.get("status")) || {};
+		const existing = (await globals.redis.get("status")) || {};
 		const payload = {
 			...existing,
 			[settings.deviceId]: {
@@ -188,7 +192,7 @@ async function syncStatus() {
 
 		if (window) window.webContents.send("status", status);
 		if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
-		await redis.set("status", JSON.stringify(payload));
+		await globals.redis.set("status", JSON.stringify(payload));
 	} catch {}
 }
 
@@ -203,8 +207,8 @@ async function verifyAndLaunch(validate = true) {
 				return;
 			}
 
-			redis = createRedisClient(settings.upstash.url, settings.upstash.token);
-			const isValid = await isRedisClientValid(redis);
+			globals.redis = createRedisClient(settings.upstash.url, settings.upstash.token);
+			const isValid = await isRedisClientValid(globals.redis);
 
 			if (!isValid) {
 				dialog.showErrorBox("Connection Failed!", "Failed to connect to Redis with the provided settings. Please check your configuration and try again.");

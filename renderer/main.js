@@ -114,7 +114,6 @@ async function populateSettings() {
 // Save settings from the settings page
 // eslint-disable-next-line no-unused-vars
 async function saveSettings() {
-	const saveBtn = document.querySelector("#settings-save");
 	const deviceIdV = document.querySelector("#device-id").value.trim() || undefined;
 	const priority = parseInt(document.querySelector("#priority").value) || undefined;
 	const apiUrl = document.querySelector("#api-url").value.trim() || undefined;
@@ -127,18 +126,8 @@ async function saveSettings() {
 	if (apiUrl) payload.upstash = { url: apiUrl };
 	if (apiToken) payload.upstash = { ...(payload.upstash || {}), token: apiToken };
 
-	saveBtn.disabled = true;
-	saveBtn.textContent = "Saving...";
-	
 	const result = await window.api.updateSettings(payload);
 	if (result.success) deviceId = deviceIdV;
-
-	saveBtn.textContent = result.success ? "Settings saved!" : "Failed to save.";
-	saveBtn.disabled = false;
-
-	setTimeout(() => {
-		saveBtn.textContent = "Save";
-	}, 2500);
 }
 
 // Unregister the device by wiping the Redis entry and settings

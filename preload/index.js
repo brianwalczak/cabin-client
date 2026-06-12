@@ -6,4 +6,6 @@ contextBridge.exposeInMainWorld("api", {
 	updateSettings: (config) => ipcRenderer.invoke("settings:set", config),
 	completeOnboarding: () => ipcRenderer.send("onboarding-complete"),
 	unregister: () => ipcRenderer.invoke("unregister"),
+	getPrinterSettings: () => ipcRenderer.invoke("printer:get"),
+	updatePrinterSettings: (config) => ipcRenderer.invoke("printer:set", config),
 });

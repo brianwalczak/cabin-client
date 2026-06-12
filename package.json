@@ -13,7 +13,8 @@
 		"dist": "npx electron-builder",
 		"build:css": "npx @tailwindcss/cli -i ./renderer/assets/css/input.css -o ./renderer/assets/css/output.css",
 		"format": "prettier . --write",
-		"format:check": "prettier . --check"
+		"format:check": "prettier . --check",
+		"postinstall": "electron-rebuild -f"
 	},
 	"author": {
 		"name": "Brian Walczak",
@@ -80,6 +81,7 @@
 	},
 	"devDependencies": {
 		"@electron-toolkit/eslint-config": "^2.1.0",
+		"@electron/rebuild": "^4.0.4",
 		"@tailwindcss/cli": "^4.1.14",
 		"electron": "^38.2.2",
 		"electron-builder": "^26.0.12",
@@ -88,6 +90,7 @@
 		"tailwindcss": "^4.1.14"
 	},
 	"dependencies": {
+		"@alexssmusica/node-printer": "^0.8.1",
 		"@upstash/redis": "^1.38.0",
 		"get-windows": "^9.3.0"
 	}

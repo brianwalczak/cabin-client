@@ -169,48 +169,82 @@
 
 		<!-- settings page -->
 		<div class="page hidden flex-col flex-1 p-3 overflow-y-auto">
-			<div class="px-4 py-5 border-b border-white/10">
-				<p class="mono text-xs text-white/30 mb-4">Device Configuration</p>
+			<form
+				class="flex flex-col flex-1"
+				onsubmit="
+					event.preventDefault();
+					saveSettings();
+					savePrinterSettings();
+				"
+			>
+				<div class="px-4 py-5 border-b border-white/10">
+					<p class="mono text-xs text-white/30 mb-4">Device Configuration</p>
 
-				<div class="flex flex-col flex-1 gap-5">
-					<!-- col since i might add more stuff later -->
-					<div>
-						<p class="text-xs text-white/50 mb-1.5">Device ID</p>
-						<input type="text" id="device-id" placeholder="desktop" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-					</div>
-					<div>
-						<p class="text-xs text-white/50 mb-1.5">Priority <span class="text-white/20">(lower = shown first as status)</span></p>
-						<div class="flex items-center gap-3">
-							<input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.querySelector('#priority-text').textContent = this.value" class="flex-1 accent-white" required />
-							<span id="priority-text" class="mono text-sm font-bold text-white/80 w-6">1</span>
+					<div class="flex flex-col flex-1 gap-5">
+						<!-- col since i might add more stuff later -->
+						<div>
+							<p class="text-xs text-white/50 mb-1.5">Device ID</p>
+							<input type="text" id="device-id" placeholder="desktop" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+						</div>
+						<div>
+							<p class="text-xs text-white/50 mb-1.5">Priority <span class="text-white/20">(lower = shown first as status)</span></p>
+							<div class="flex items-center gap-3">
+								<input type="range" id="priority" min="1" max="20" value="1" step="1" oninput="document.querySelector('#priority-text').textContent = this.value" class="flex-1 accent-white" required />
+								<span id="priority-text" class="mono text-sm font-bold text-white/80 w-6">1</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="px-4 py-5 border-b border-white/10">
-				<p class="mono text-xs text-white/30 mb-4">Redis Connection</p>
+				<div class="px-4 py-5 border-b border-white/10">
+					<p class="mono text-xs text-white/30 mb-4">Redis Connection</p>
 
-				<div class="flex flex-col flex-1 gap-5">
-					<!-- col since i might add more stuff later -->
-					<div>
-						<p class="text-xs text-white/50 mb-1.5">API URL</p>
-						<input type="url" id="api-url" placeholder="https://xxxxxxxxxxx.upstash.io" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
-					</div>
-					<div>
-						<p class="text-xs text-white/50 mb-1.5">API Key</p>
-						<input type="password" id="api-key" placeholder="••••••••••••••••••••••••••••••••" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+					<div class="flex flex-col flex-1 gap-5">
+						<!-- col since i might add more stuff later -->
+						<div>
+							<p class="text-xs text-white/50 mb-1.5">API URL</p>
+							<input type="url" id="api-url" placeholder="https://xxxxxxxxxxx.upstash.io" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+						</div>
+						<div>
+							<p class="text-xs text-white/50 mb-1.5">API Key</p>
+							<input type="password" id="api-key" placeholder="••••••••••••••••••••••••••••••••" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" required />
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="px-4 py-5 flex items-center justify-between gap-4">
-				<button type="button" id="settings-save" onclick="saveSettings()" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">Save</button>
-				<button type="button" id="settings-unregister" onclick="unregisterDevice()" class="shrink-0 px-4 py-2 border border-red-500/40 text-red-400/80 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-400 text-sm font-medium rounded-lg cursor-pointer transition-colors">Unregister Device</button>
-			</div>
+				<div class="px-4 py-5 border-b border-white/10">
+					<p class="mono text-xs text-white/30 mb-4">Printer</p>
+
+					<div class="flex flex-col flex-1 gap-5">
+						<!-- col since i might add more stuff later -->
+						<div class="flex items-center justify-between">
+							<div>
+								<p class="text-sm text-white/90">Printer Device</p>
+								<p class="text-xs text-white/40 mt-0.5">Enable this device to handle print queue jobs</p>
+							</div>
+
+							<div id="printer-device" class="relative cursor-pointer inline-flex" onclick="togglePrinter()" data-enabled="false">
+								<div class="w-9 h-5 rounded-full border border-white/20 bg-white/5 transition-colors">
+									<div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white/60 transition-transform duration-200"></div>
+								</div>
+							</div>
+						</div>
+						<div class="hidden">
+							<p class="text-xs text-white/50 mb-1.5">Printer Name</p>
+							<input type="text" id="printer-name" placeholder="Label Printer" class="w-full px-3 py-2 mono text-sm text-white/80 bg-white/4 border border-white/8 focus:border-white/20 rounded-md transition-colors outline-none" />
+						</div>
+					</div>
+				</div>
+
+				<div class="px-4 py-5 flex items-center justify-between gap-4">
+					<button type="submit" id="settings-save" class="px-4 py-2 bg-white hover:bg-white/90 text-neutral-900 text-sm font-medium rounded-lg cursor-pointer transition-colors">Save</button>
+					<button type="button" id="settings-unregister" onclick="unregisterDevice()" class="shrink-0 px-4 py-2 border border-red-500/40 text-red-400/80 hover:bg-red-500/10 hover:border-red-500/60 hover:text-red-400 text-sm font-medium rounded-lg cursor-pointer transition-colors">Unregister Device</button>
+				</div>
+			</form>
 		</div>
 
 		<script src="./main.js"></script>
+		<script src="./printer.js"></script>
 		<script src="./nav.js"></script>
 	</body>
 </html>
