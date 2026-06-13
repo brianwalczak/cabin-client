@@ -9,12 +9,30 @@ const POLL_INTERVAL = 30000;
 
 const defaults = { enabled: false, name: "" };
 
-const FONT_HEIGHT = 24;
-const LINE_SPACING = 2;
-const LINE_TOTAL = FONT_HEIGHT + LINE_SPACING;
+const LABEL_WIDTH_MM = 100; // 100mm wide labels (4x6!)
+const PRINTER_DPI = 203; // 203 dots per inch
+
+const MAX_CHARS_PER_LINE = 65; // Max characters that can fit on a line (had to calculate myself because the printer is weird)
+const FONT_HEIGHT = 24; // Height of the font in dots (Font 3)
+
+const DOT_SIZE_MM = 25.4 / PRINTER_DPI; // Size of one dot in mm
 
 function makeLine(text) {
-	return [`SIZE 100 mm,${LINE_TOTAL} dot`, "GAP 0,0", "OFFSET 0", "DIRECTION 1", "REFERENCE 0,0", "CLS", `TEXT 0,0,"3",0,1,1,"${text}"`, "PRINT 1,0"].join("\r\n") + "\r\n";
+	if (text.length > MAX_CHARS_PER_LINE) {
+		text = text.slice(0, MAX_CHARS_PER_LINE - 3) + "...";
+	}
+
+	return [`SIZE ${LABEL_WIDTH_MM} mm,${DOT_SIZE_MM * (FONT_HEIGHT + 3)} mm`, "CLS", "GAP 0,0", "OFFSET 0", "DIRECTION 1", "REFERENCE 0,0", `TEXT 0,0,"3",0,1,1,"${text}"`, "PRINT 1"].join("\r\n") + "\r\n";
+}
+
+function printDirectAsync(options) {
+	return new Promise((resolve, reject) => {
+		printer.printDirect({
+			...options,
+			success: resolve,
+			error: reject,
+		});
+	});
 }
 
 async function getPrinterSettings() {
@@ -59,8 +77,8 @@ async function poll() {
 			["print_queue"],
 		);
 
-		for (const item of items) {
-			printer.printDirect({
+		for (const item of [...items].reverse()) {
+			await printDirectAsync({
 				data: makeLine(String(item)),
 				printer: settings.name,
 				type: "RAW",
