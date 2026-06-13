@@ -124,13 +124,14 @@ ipcMain.handle("settings:set", async (event, config) => {
 	// if the device ID is being changed, update the Redis record to the new ID
 	if (globals.redis && config.deviceId && config.deviceId !== oldSettings.deviceId) {
 		try {
-			const existing = (await globals.redis.get("status")) || {};
+			const existing = await globals.redis.hget("status", oldSettings.deviceId);
 
-			if (existing[oldSettings.deviceId]) {
-				existing[config.deviceId] = existing[oldSettings.deviceId];
-				delete existing[oldSettings.deviceId];
+			if (existing) {
+				await globals.redis.hset("status", {
+					[config.deviceId]: existing,
+				});
 
-				await globals.redis.set("status", JSON.stringify(existing));
+				await globals.redis.hdel("status", oldSettings.deviceId);
 			}
 		} catch {}
 	}
@@ -148,10 +149,7 @@ ipcMain.handle("unregister", async () => {
 		// remove this device's status from the Redis
 		if (globals.redis && settings.deviceId) {
 			try {
-				const existing = (await globals.redis.get("status")) || {};
-
-				delete existing[settings.deviceId];
-				await globals.redis.set("status", JSON.stringify(existing));
+				await globals.redis.hdel("status", settings.deviceId);
 			} catch {}
 		}
 
@@ -181,18 +179,14 @@ async function syncStatus() {
 		const status = await getStatus(true);
 		const settings = await getSettings();
 
-		const existing = (await globals.redis.get("status")) || {};
-		const payload = {
-			...existing,
+		await globals.redis.hset("status", {
 			[settings.deviceId]: {
 				priority: settings.priority,
-				status: status,
+				status,
 			},
-		};
+		});
 
 		if (window) window.webContents.send("status", status);
-		if (isDeepStrictEqual(existing, payload)) return; // no changes, don't push to Redis or UI
-		await globals.redis.set("status", JSON.stringify(payload));
 	} catch {}
 }
 
