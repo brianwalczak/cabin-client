@@ -1,5 +1,5 @@
 import { getSettings, isConfigValid } from "./settings.js";
-import { activeWindow } from "get-windows";
+import activeWindow from "./activeWindow.js";
 
 let lastUpdate = new Date(0).toISOString();
 
@@ -25,9 +25,9 @@ async function getStatus(updateTs = false) {
 	// Otherwise, we gotta check all the apps open and stuff
 	const mappings = status.mappings || [];
 	const active = await activeWindow();
-	if (!active?.owner?.name) return {}; // no active app (???), can't do anything
+	if (!active) return {}; // no active app (???), can't do anything
 
-	const mapping = mappings.find((m) => m.app === active.owner.name);
+	const mapping = mappings.find((m) => m.app === active);
 	if (!mapping) return {}; // no mapping for this app
 	delete mapping.app; // we don't need to return the app name
 

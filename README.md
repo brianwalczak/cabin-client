@@ -15,6 +15,9 @@
 
 ### Setup
 
+> [!WARNING]  
+> Due to security restrictions on Wayland, you'll need to download the GNOME Shell extension [here](https://extensions.gnome.org/extension/4724/window-calls/) (Linux only).
+
 To start, clone the repository and install the necessary dependencies:
 
 ```bash
