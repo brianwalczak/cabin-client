@@ -9,13 +9,13 @@ const isWayland = isLinux && process.env.XDG_SESSION_TYPE === "wayland";
 
 function parseGdbusData(stdout) {
 	try {
-		const match = stdout.trim().match(/^\((".*"),\)$/s);
+		const match = stdout.trim().match(/^\((['"])([\s\S]*)\1,\)$/);
 
 		if (!match) {
 			return [];
 		}
 
-		const jsonText = JSON.parse(match[1]);
+		const jsonText = match[2].replace(/\\(.)/g, "$1");
 		const data = JSON.parse(jsonText);
 
 		if (!Array.isArray(data)) {
