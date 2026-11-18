@@ -11,6 +11,7 @@ const defaults = {
 		enabled: true,
 		manual: null,
 		mappings: [],
+		idleTimeout: 300,
 	},
 };
 
@@ -33,6 +34,7 @@ async function getSettings() {
 				enabled: settings?.status?.enabled ?? defaults.status.enabled,
 				manual: settings?.status?.manual ?? defaults.status.manual,
 				mappings: settings?.status?.mappings ?? defaults.status.mappings,
+				idleTimeout: settings?.status?.idleTimeout ?? defaults.status.idleTimeout,
 			},
 		};
 

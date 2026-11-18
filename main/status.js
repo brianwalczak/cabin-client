@@ -1,5 +1,6 @@
 import { getSettings, isConfigValid } from "./settings.js";
 import activeWindow from "./activeWindow.js";
+import isAfk from "./idle.js";
 
 let lastUpdate = new Date(0).toISOString();
 
@@ -20,6 +21,11 @@ async function getStatus(updateTs = false) {
 			...status.manual,
 			updatedAt: lastUpdate,
 		};
+	}
+
+	// If there's been no input for a while (and no media playing), assume we're AFK
+	if (await isAfk(Number(status.idleTimeout) || 0)) {
+		return {}; // afk, don't report anything
 	}
 
 	// Otherwise, we gotta check all the apps open and stuff
